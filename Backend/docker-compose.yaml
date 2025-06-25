@@ -1,0 +1,31 @@
+services: 
+  backend:
+    build:
+      context: ./Backend
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://admin:mdt20210616@pms-db.cvg40a0wwhxi.ap-northeast-2.rds.amazonaws.com/pms
+      - SPRING_DATASOURCE_USERNAME=admin
+      - SPRING_DATASOURCE_PASSWORD=mdt20210616
+      - SPRING_PROFILES_ACTIVE=prod
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+      - SPRING_JPA_PROPERTIES_HIBERNATE_SHOW_SQL=true
+      - SPRING_JPA_PROPERTIES_HIBERNATE_FORMAT_SQL=true
+      - SPRING_JPA_DEFER_DATASOURCE_INITIALIZATION=true
+      - SPRING_SQL_INIT_MODE=always
+      - JWT_SECRET=zi5RGoiqrWBH+aLmBWPPTh9RfarEDFmISiuokYoM+P8=
+
+    networks:
+      - testmdt-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+networks:
+  testmdt-network:
+    driver: bridge
