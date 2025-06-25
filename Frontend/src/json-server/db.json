@@ -1,0 +1,120 @@
+{
+  "seamaninfo": [
+    {
+      "id": 1,
+      "name": "Khan",
+      "position": "Captain",
+      "assignedShip": "WOORI SUN",
+      "status": "Active",
+      "statusIndicator": "green",
+      "nationality": "🇲🇲",
+      "sailorCode": "P356218"
+    },
+    {
+      "id": 2,
+      "name": "Pan",
+      "position": "First Mate",
+      "assignedShip": "WOORI SUN",
+      "status": "Active",
+      "statusIndicator": "green",
+      "nationality": "🇲🇲",
+      "sailorCode": "P356218"
+    },
+    {
+      "id": 3,
+      "name": "Nann",
+      "position": "Second Mate",
+      "assignedShip": "WOORI SUN",
+      "status": "Active",
+      "statusIndicator": "green",
+      "nationality": "🇲🇲",
+      "sailorCode": "P356218"
+    },
+    {
+      "id": 4,
+      "name": "Lann",
+      "position": "Third Mate",
+      "assignedShip": "WOORI SUN",
+      "status": "Active",
+      "statusIndicator": "green",
+      "nationality": "🇲🇲",
+      "sailorCode": "P356218"
+    },
+    {
+      "id": 5,
+      "name": "Thann",
+      "position": "Crew",
+      "assignedShip": "WOORI SUN",
+      "status": "Active",
+      "statusIndicator": "green",
+      "nationality": "🇲🇲",
+      "sailorCode": "P356218"
+    },
+    {
+      "id": 6,
+      "name": "Wann",
+      "position": "Crew",
+      "assignedShip": "WOORI SUN",
+      "status": "Active",
+      "statusIndicator": "green",
+      "nationality": "🇲🇲",
+      "sailorCode": "P356218"
+    }
+  ],
+  "ships": [
+    {
+      "id": 1,
+      "ship": "Ship A",
+      "callSign": "A123",
+      "operator": "Operator X",
+      "status": "green",
+      "kind": "Cargo",
+      "imo": "IMO123"
+    },
+    {
+      "id": 2,
+      "ship": "Ship B",
+      "callSign": "B456",
+      "operator": "Operator Y",
+      "status": "red",
+      "kind": "Tanker",
+      "imo": "IMO456"
+    },
+    {
+      "id": 3,
+      "ship": "Ship C",
+      "callSign": "C789",
+      "operator": "Operator Z",
+      "status": "green",
+      "kind": "Cruise",
+      "imo": "IMO789"
+    },
+    {
+      "id": 4,
+      "ship": "Ship D",
+      "callSign": "D012",
+      "operator": "Operator Q",
+      "status": "green",
+      "kind": "Cargo",
+      "imo": "IMO012"
+    },
+    {
+      "id": 5,
+      "ship": "Ship E",
+      "callSign": "E345",
+      "operator": "Operator W",
+      "status": "red",
+      "kind": "Tanker",
+      "imo": "IMO345"
+    },
+    {
+      "id": 6,
+      "ship": "Ship F",
+      "callSign": "F678",
+      "operator": "Operator V",
+      "status": "green",
+      "kind": "Cruise",
+      "imo": "IMO678"
+    }
+  ]
+}
