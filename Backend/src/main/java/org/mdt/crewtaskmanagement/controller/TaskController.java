@@ -3,6 +3,7 @@ package org.mdt.crewtaskmanagement.controller;
 import lombok.RequiredArgsConstructor;
 import org.mdt.crewtaskmanagement.dto.task.CrewTaskDtoOutPut;
 import org.mdt.crewtaskmanagement.dto.task.TaskDto;
+import org.mdt.crewtaskmanagement.service.MaintenanceLogService;
 import org.mdt.crewtaskmanagement.service.impl.TaskServiceImpl;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -14,6 +15,14 @@ import java.util.List;
 @RequestMapping("/mdt/task")
 public class TaskController {
     private final TaskServiceImpl taskService;
+    private final MaintenanceLogService maintenanceLogService;
+    public record Remark(String remark) {}
+
+    @PostMapping("/{assignmentId}/finish")
+    public ResponseEntity<String> finishTask(@PathVariable Long assignmentId, @RequestBody Remark remark) {
+        String res =  maintenanceLogService.finishTask(assignmentId, remark.remark);
+        return ResponseEntity.ok(res);
+    }
 
 
     @PostMapping("/register")

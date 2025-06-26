@@ -24,7 +24,7 @@ const TaskRequest = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await fetch("http://15.165.161.1850.166:8080/mdt/task/register", {
+      const response = await fetch("http://13.124.92.115:8080/mdt/task/register", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

@@ -35,6 +35,23 @@ public class CrewTaskManagementApplication {
 
         };
     }
+    @Bean //@Profile("dev")
+    public ApplicationRunner init3() {
+        return args -> {
+            Admin admin = new Admin();
+            admin.setFirstName("Admin2");
+            admin.setLastName("User+");
+            admin.setEducation("Education");
+            admin.setEmail("admin@gmail.com+");
+            admin.setPassword(passwordEncoder.encode("12345"));
+            Role adminRole = new Role();
+            adminRole.setRoleName("ADMIN");
+            roleRepository.save(adminRole);
+            admin.addRole(adminRole);
+            adminRepository.save(admin);
+
+        };
+    }
 
 
     @Bean

@@ -106,7 +106,7 @@ public class MaintenanceLogServiceImpl implements MaintenanceLogService {
         log.setTask(assignment.getTask());
         log.setDuty(assignment.getCrew());
         log.setLastWork(LocalDate.now());
-        log.setNextDue(LocalDate.now().plusMonths(1));
+        log.setNextDue(getNextDueByTaskType(assignment.getTask().getTaskType().toString()));
         log.setRemark(remark);
         log.setStatus(MaintenanceLog.MaintenanceStatus.COMPLETED);
         maintenanceLogRepository.save(log);
