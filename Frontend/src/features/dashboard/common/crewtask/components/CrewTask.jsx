@@ -10,7 +10,7 @@ const CrewTask = () => {
   // Fetch from backend on mount
   useEffect(() => {
   axios
-    .get("http://13.124.92.115:8080/mdt/task/")
+    .get("http://13.124.92.115:8080/mdt/task")
     .then((res) => {
       console.log("ii", res.data);
       return res.data;
