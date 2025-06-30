@@ -2,28 +2,31 @@ import React, { useState, useEffect } from "react";
 import Pagination from "./../../../../../common/Pagination";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+
 const CrewTask = () => {
-  const [data, setData] = useState([]); // <-- Now empty, ready for backend
+  const [data, setData] = useState([]); // Array of tasks
   const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1); // Store total pages from backend
   const rowsPerPage = 8;
   const navigate = useNavigate();
+
   // Fetch from backend on mount
-  useEffect(() => {
+useEffect(() => {
   axios
-    .get("http://192.168.0.166:8080/mdt/task/")
+    .get(`http://13.124.92.115:9091/mdt/task/all?page=${currentPage - 1}&size=${rowsPerPage}`)
     .then((res) => {
       console.log("ii", res.data);
-      return res.data;
+      setData(res.data.contents);
+      setTotalPages(res.data.totalPages);
     })
-    .then((data) => setData(data))
     .catch((err) => console.error("Error fetching data:", err));
-}, []);
+}, [currentPage]);
 
-  const totalPages = Math.ceil(data.length / rowsPerPage);
   const currentData = data.slice(
     (currentPage - 1) * rowsPerPage,
     currentPage * rowsPerPage
   );
+
   return (
     <div className="min-h-screen p-6 mx-auto bg-white rounded-[30px] shadow-2xl overflow-hidden">
       {/* Add Task Button */}
@@ -53,9 +56,7 @@ const CrewTask = () => {
           {currentData.map((row, index) => (
             <tr
               key={row.id}
-              className={`${
-                index % 2 === 0 ? "bg-white" : "bg-gray-100"
-              } text-black`}
+              className={`${index % 2 === 0 ? "bg-white" : "bg-gray-100"} text-black`}
             >
               <td className="p-4 font-medium">{row.id}.</td>
               <td className="p-4">{row.title}</td>
@@ -85,4 +86,5 @@ const CrewTask = () => {
     </div>
   );
 };
+
 export default CrewTask;
