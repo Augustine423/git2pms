@@ -1,8 +1,8 @@
 import React from "react";
 // import { useState } from "react";
 import TopSummary from './OverviewComponents/TopSummary';
-import SeamanInfo from "./OverviewComponents/Seamaninfo";
-import Sidebar from "./OverviewComponents/SIdebar";
+import SeamanInfo from "./OverviewComponents/SeamanInfo";
+import Sidebar from "./OverviewComponents/Sidebar";
 
 
 
