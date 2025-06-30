@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 version: '3.8'
 
 services:
@@ -38,3 +39,6 @@ services:
 
 volumes:
   mysql_data:
+=======
+
+>>>>>>> 92eacda144a1f3a98ac2bcc1686449ca8b82257e
