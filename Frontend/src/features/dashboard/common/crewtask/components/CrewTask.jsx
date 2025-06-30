@@ -10,7 +10,7 @@ const CrewTask = () => {
   // Fetch from backend on mount
   useEffect(() => {
     axios
-      .get("http://localhost:8080/mdt/task/")
+      .get("http://13.124.92.115:8080/mdt/task/")
       .then((res) => setData(res.data))
       .catch((err) => console.error("Error fetching data:", err));
   }, []);
