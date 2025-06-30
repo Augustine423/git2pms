@@ -24,7 +24,7 @@ const TaskRequest = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await fetch("http://13.124.92.115:8080/mdt/task/register", {
+      const response = await fetch("http://localhost:8080/mdt/task/register", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -88,7 +88,7 @@ const TaskRequest = () => {
           <input
             type="text"
             name="componentName"
-            placeholder="Text"
+            placeholder="Enter task type (e.g., Monthly)"
             value={formData.componentName}
             onChange={handleChange}
             className="flex-1 border rounded-md px-4 py-2 focus:ring focus:ring-blue-200"
@@ -153,3 +153,6 @@ const TaskRequest = () => {
   );
 };
 export default TaskRequest;
+
+
+
