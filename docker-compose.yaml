@@ -20,8 +20,8 @@ services:
     restart: unless-stopped
     environment:
       - SPRING_DATASOURCE_URL=jdbc:mysql://pms-db.cvg40a0wwhxi.ap-northeast-2.rds.amazonaws.com:3306/shipmgmt?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC
-      - SPRING_DATASOURCE_USERNAME={DB_USERNAME:-admin}
-      - SPRING_DATASOURCE_PASSWORD={DB_PASSWORD:-mdt20210616}
+      - SPRING_DATASOURCE_USERNAME=admin}
+      - SPRING_DATASOURCE_PASSWORD=mdt20210616}
       - SPRING_JPA_HIBERNATE_DDL_AUTO=update
       - SPRING_APPLICATION_NAME=CrewTaskManagement
       - SPRING_PROFILES_ACTIVE=prod
