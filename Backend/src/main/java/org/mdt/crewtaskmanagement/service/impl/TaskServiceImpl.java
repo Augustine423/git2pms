@@ -2,6 +2,7 @@ package org.mdt.crewtaskmanagement.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import org.mdt.crewtaskmanagement.dto.task.CrewTaskDtoOutPut;
+import org.mdt.crewtaskmanagement.dto.task.PageableTaskListDto;
 import org.mdt.crewtaskmanagement.dto.task.TaskDto;
 import org.mdt.crewtaskmanagement.mapper.CrewTaskMapper;
 import org.mdt.crewtaskmanagement.mapper.TaskMapper;
@@ -10,8 +11,12 @@ import org.mdt.crewtaskmanagement.model.Ship;
 import org.mdt.crewtaskmanagement.model.Task;
 import org.mdt.crewtaskmanagement.model.TaskAssignment;
 import org.mdt.crewtaskmanagement.model.system.Component;
+import org.mdt.crewtaskmanagement.output.PageResult;
 import org.mdt.crewtaskmanagement.repository.entity.*;
 import org.mdt.crewtaskmanagement.service.TaskService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -78,8 +83,23 @@ public class TaskServiceImpl implements TaskService {
         return TaskMapper.toTaskDto(taskRepository.findById(id).orElseThrow());
     }
 
-    public List<TaskDto> getAllTasks(){
-        return taskRepository.findAll().stream().map(TaskMapper::toTaskDto).collect(Collectors.toList());
+    public PageResult<TaskDto> getAllTasks(int page, int size){
+        var pageable = PageRequest.of(page, size);
+        Page<Task> tasks = taskRepository.findAll(pageable);
+
+
+        //  Map to DTO
+        List<TaskDto> dtoList = tasks.stream()
+                .map(task -> TaskMapper.toTaskDto(task))
+                .toList();
+
+        return new PageResult<TaskDto>(
+                dtoList,
+                tasks.getTotalElements(),
+                size,
+                page
+        );
+        //.stream().map(TaskMapper::toTaskDto).collect(Collectors.toList());
     }
 
 

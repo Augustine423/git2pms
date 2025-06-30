@@ -2,9 +2,14 @@ package org.mdt.crewtaskmanagement.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.mdt.crewtaskmanagement.dto.task.CrewTaskDtoOutPut;
+import org.mdt.crewtaskmanagement.dto.task.PageableTaskListDto;
 import org.mdt.crewtaskmanagement.dto.task.TaskDto;
+import org.mdt.crewtaskmanagement.output.PageResult;
 import org.mdt.crewtaskmanagement.service.MaintenanceLogService;
 import org.mdt.crewtaskmanagement.service.impl.TaskServiceImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -41,9 +46,12 @@ public class TaskController {
         return ResponseEntity.ok(taskService.getTaskById(id));
     }
 
-    @GetMapping("/")
-    public ResponseEntity<List<TaskDto>> getAllTasks() {
-        return ResponseEntity.ok(taskService.getAllTasks());
+    @GetMapping("/all")
+    public PageResult<TaskDto> getAllTasks(
+                                            @RequestParam(defaultValue = "0",required = false) int page,
+                                            @RequestParam(defaultValue = "10",required = false) int size) {
+
+        return taskService.getAllTasks(page,size);
     }
 
     @DeleteMapping("/{id}")
