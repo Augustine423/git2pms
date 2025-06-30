@@ -1,8 +1,16 @@
-
 services:
   frontend:
     build:
       context: .
       dockerfile: Dockerfile
-    network_mode: "host"
-    restart: unless-stopped
+    ports:
+      - "80:80"
+    environment:
+      - NGINX_PORT=80
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    networks:
+      - pms-network
+networks:
+  pms-network:
+    driver: bridge

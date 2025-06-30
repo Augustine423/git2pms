@@ -1,12 +1,24 @@
 services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "80:80"
+    environment:
+      - NGINX_PORT=80
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    networks:
+      - pms-network
+
   backend:
     build:
       context: .
       dockerfile: Dockerfile
-    network_mode: "host"
     restart: unless-stopped
     environment:
-      SPRING_DATASOURCE_URL: jdbc:mysql://localhost:3306/shipmgmt?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/shipmgmt?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC
       SPRING_DATASOURCE_USERNAME: root
       SPRING_DATASOURCE_PASSWORD: admin
       SPRING_JPA_HIBERNATE_DDL_AUTO: update
@@ -25,10 +37,11 @@ services:
     depends_on:
       mysql:
         condition: service_healthy
+    networks:
+      - pms-network
 
   mysql:
     image: mysql:8.0
-    network_mode: "host"
     restart: unless-stopped
     environment:
       MYSQL_ROOT_PASSWORD: admin
@@ -40,7 +53,9 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    networks:
+      - pms-network
 
 networks:
-  app-network:
-    driver: host
+  pms-network:
+    driver: bridge

@@ -9,11 +9,16 @@ const CrewTask = () => {
   const navigate = useNavigate();
   // Fetch from backend on mount
   useEffect(() => {
-    axios
-      .get("http://13.124.92.115:8080/mdt/task/")
-      .then((res) => setData(res.data))
-      .catch((err) => console.error("Error fetching data:", err));
-  }, []);
+  axios
+    .get("http://192.168.0.166:8080/mdt/task/")
+    .then((res) => {
+      console.log("ii", res.data);
+      return res.data;
+    })
+    .then((data) => setData(data))
+    .catch((err) => console.error("Error fetching data:", err));
+}, []);
+
   const totalPages = Math.ceil(data.length / rowsPerPage);
   const currentData = data.slice(
     (currentPage - 1) * rowsPerPage,
