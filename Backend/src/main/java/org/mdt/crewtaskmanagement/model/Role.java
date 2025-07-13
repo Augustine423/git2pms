@@ -15,6 +15,19 @@ public class Role {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
-    private String roleName;
+    private UserRole roleName;
+
+    public enum UserRole {
+        ADMIN,              // Full system access
+        SUPERINTENDENT,     // Shore-side user with authority over ships
+        SHIP_MANAGER,       // Can manage tasks & schedules on the ship
+        CREW,               // Default crew access - log maintenance, view tasks
+        ENGINEER,           // Can update engine tasks and logs
+        OFFICER,            // Deck officer role
+        AUDITOR,            // Can only view reports/logs
+        INSPECTOR,          // Can verify tasks, approve
+        APPROVER,           // Can approve reports/tasks
+        COMPANY_ADMIN       // Belongs to Company entity
+    }
 
 }

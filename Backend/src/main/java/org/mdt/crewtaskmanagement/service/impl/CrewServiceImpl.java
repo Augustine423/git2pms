@@ -3,15 +3,26 @@ package org.mdt.crewtaskmanagement.service.impl;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.collections4.Get;
 import org.mdt.crewtaskmanagement.dto.crew.CrewDto;
+import org.mdt.crewtaskmanagement.dto.crewAssignment.CrewAssignmentDto;
 import org.mdt.crewtaskmanagement.exception.ServiceBaseException;
 import org.mdt.crewtaskmanagement.mapper.CrewMapper;
+import org.mdt.crewtaskmanagement.mapper.crew.CrewAssignmentMapper;
 import org.mdt.crewtaskmanagement.model.Crew;
 import org.mdt.crewtaskmanagement.model.Role;
+import org.mdt.crewtaskmanagement.model.type.CrewRank;
+import org.mdt.crewtaskmanagement.output.PageResult;
 import org.mdt.crewtaskmanagement.param.CrewParam;
+import org.mdt.crewtaskmanagement.repository.entity.CrewAssignmentRepository;
 import org.mdt.crewtaskmanagement.repository.entity.CrewRepository;
 import org.mdt.crewtaskmanagement.repository.entity.RoleRepository;
-import org.mdt.crewtaskmanagement.service.CrewService;
+import org.mdt.crewtaskmanagement.service.ICrewService;
+import org.mdt.crewtaskmanagement.utils.GetEntitesWithPageable;
+import org.mdt.crewtaskmanagement.utils.RoleMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,34 +34,31 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 @Transactional
-public class CrewServiceImpl implements CrewService {
+public class CrewServiceImpl implements ICrewService {
     private final CrewRepository crewRepository;
+    private final CrewAssignmentRepository crewAssignmentRepository;
     private final RoleRepository roleDao;
     private final PasswordEncoder passwordEncoder;
     private final RoleRepository roleRepository;
+    private final CrewAssignmentMapper crewAssignmentMapper;
 
     @Override
     public CrewDto registerCrew(CrewDto dto) throws ServiceBaseException {
 
-            if (dto.getUserType() == null || dto.getUserType().isBlank()) {
+        Role.UserRole role = RoleMapper.mapCrewRankToRole(CrewRank.valueOf(dto.getCrewRank()));
+
+
+        if (dto.getUserType() == null || dto.getUserType().isBlank()) {
                 throw new ServiceBaseException(List.of("User type cannot be null or empty"));
             }
 
             Crew crew = CrewMapper.fromDto(dto);
             crew.setPassword(passwordEncoder.encode(dto.getPassword()));
 
-            String roleName = switch (dto.getUserType().toLowerCase()) {
-                case "firstleader" -> "FIRST_LEADER";
-                case "secondleader" -> "SECOND_LEADER";
-                case "thirdleader" -> "THIRD_LEADER";
-                case "worker" -> "WORKER";
-                default -> throw new ServiceBaseException(List.of("Unknown user type: " + dto.getUserType()));
-            };
+            Role crewRole = roleRepository.findByRoleName(Role.UserRole.valueOf( role.toString()))
+                    .orElseThrow(() -> new ServiceBaseException(List.of("Role not found: " + role)));
 
-            Role role = roleRepository.findByRoleName(roleName)
-                    .orElseThrow(() -> new ServiceBaseException(List.of("Role not found: " + roleName)));
-
-            crew.addRole(role);
+            crew.addRole(crewRole);
             Crew savedCrew = crewRepository.save(crew);
 
             return CrewMapper.toDto(savedCrew);
@@ -69,10 +77,16 @@ public class CrewServiceImpl implements CrewService {
     public CrewDto getCrewById(long id) {
         return CrewMapper.toDto(crewRepository.findById(id).orElseThrow());
     }
+    @Override
+    public Crew getById(long id) {
+        return crewRepository.findById(id).orElseThrow();
+    }
 
     @Override
-    public List<CrewDto> getAllCrews() {
-        return crewRepository.findAll().stream().map(CrewMapper::toDto).collect(Collectors.toList());
+    public PageResult<CrewDto> getAllCrews(int page,int size) {
+        Pageable pageable = PageRequest.of(page, size);
+         var crews  = crewRepository.findAll(pageable);
+         return GetEntitesWithPageable.getAllWithPageable(pageable,crews,CrewMapper::toDto);
     }
 
 
@@ -83,15 +97,35 @@ public class CrewServiceImpl implements CrewService {
     }
 
     @Override
-    public List<CrewDto> getCrewsForAssignments() {
-        return crewRepository.findAvailableCrewsForAssignment().stream().map(CrewMapper::toDto).collect(Collectors.toList());
+    public PageResult<CrewDto> getCrewsForAssignments(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Crew> crews = crewRepository.findAvailableCrewsForAssignment(pageable);
+        return GetEntitesWithPageable.getAllWithPageable(pageable,crews,CrewMapper::toDto);
     }
 
     @Override
-    public List<CrewDto> getAllCrewsByShipId(long shipId) {
-        return crewRepository.findCrewsByShipId(shipId).stream().map(CrewMapper::toDto).collect(Collectors.toList());
+    public PageResult<CrewDto> getAllCrewsByShipId(long shipId,int page,int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        var crews = crewRepository.findCrewsByShipId(shipId,pageable);
+        return GetEntitesWithPageable.getAllWithPageable(pageable,crews,CrewMapper::toDto);
     }
-@Override
+
+    @Override
+    public PageResult<CrewDto> getCrewsWithPosition(String rank,int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        var crews = crewRepository.getCrewWithPosition(CrewRank.valueOf(rank),pageable);
+        return GetEntitesWithPageable.getAllWithPageable(pageable,crews,CrewMapper::toDto);
+    }
+
+    @Override
+    public PageResult<CrewDto> getAllCrewsWithPositionByShipId(long shipId,String rank, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        var crews = crewRepository.getCrewWithPositionByShipId(shipId, CrewRank.valueOf(rank),pageable);
+        return GetEntitesWithPageable.getAllWithPageable(pageable,crews,CrewMapper::toDto);
+    }
+
+
+    @Override
     public List<CrewDto> search(CrewParam param){
         Function<CriteriaBuilder, CriteriaQuery<Crew>> query = cb -> {
             var cq = cb.createQuery(Crew.class);
@@ -115,6 +149,12 @@ public class CrewServiceImpl implements CrewService {
     @Override
     public int getAllActiveCrewCount() {
         return crewRepository.getAllActiveCrewCount();
+    }
+    @Override
+    public CrewAssignmentDto addCrewAssignment(CrewAssignmentDto crewAssignmentDto) {
+        var ca = crewAssignmentMapper.fromDto(crewAssignmentDto);
+        var  c = crewAssignmentRepository.save(ca);
+        return crewAssignmentMapper.toDto(c);
     }
 
 

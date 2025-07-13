@@ -1,5 +1,6 @@
 package org.mdt.crewtaskmanagement.model.type;
 
 public enum Section {
-    section1,section2
+    DECK, ENGINE, ELECTRICAL, BRIDGE, CARGO, GALLEY, ACCOMMODATION, SAFETY
 }
+

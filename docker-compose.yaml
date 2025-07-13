@@ -21,7 +21,7 @@ services:
       - "9091:9091"
     environment:
       - SPRING_APPLICATION_NAME=CrewTaskManagement
-      - SPRING_DATASOURCE_URL=jdbc:mysql://pms-db:3306/shipmgmt?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+      - SPRING_DATASOURCE_URL=jdbc:mysql://pms-db.cvg40a0wwhxi.ap-northeast-2.rds.amazonaws.com:3306/shipmgmt?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
       - SPRING_DATASOURCE_USERNAME=root
       - SPRING_DATASOURCE_PASSWORD=admin
       - SPRING_JPA_HIBERNATE_DDL_AUTO=none
@@ -34,35 +34,32 @@ services:
       - SPRING_FLYWAY_BASELINE_VERSION=1
       - FLYWAY_CLEAN_DISABLED=false
       - JWT_SECRET=zi5RGoiqrWBH+aLmBWPPTh9RfarEDFmISiuokYoM+P8=
-    depends_on:
-      pms-db:
-        condition: service_healthy
     networks:
       - pms-network
     restart: unless-stopped
 
-  pms-db:
-    image: mysql:8.0
-    container_name: pms-db
-    environment:
-      - MYSQL_ROOT_PASSWORD=admin
-      - MYSQL_DATABASE=shipmgmt
-    ports:
-      - "3306:3306"
-    volumes:
-      - db-data:/var/lib/mysql
-      - ./mysql-init:/docker-entrypoint-initdb.d
-    healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-padmin"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-    networks:
-      - pms-network
-    restart: unless-stopped
+  # pms-db:
+  #   image: mysql:8.0
+  #   container_name: pms-db
+  #   environment:
+  #     - MYSQL_ROOT_PASSWORD=admin
+  #     - MYSQL_DATABASE=shipmgmt
+  #   ports:
+  #     - "3306:3306"
+  #   volumes:
+  #     - db-data:/var/lib/mysql
+  #     - ./mysql-init:/docker-entrypoint-initdb.d
+  #   healthcheck:
+  #     test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-padmin"]
+  #     interval: 10s
+  #     timeout: 5s
+  #     retries: 5
+  #   networks:
+  #     - pms-network
+  #   restart: unless-stopped
 
-volumes:
-  db-data:
+# volumes:
+#   db-data:
 
 networks:
   pms-network:

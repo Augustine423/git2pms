@@ -21,6 +21,8 @@ const TopBar = () => {
     "/dashboard/crew-task": "crewTask",
     "/dashboard/request-form": "requestForm",
     "/dashboard/approved-form": "approvedForm",
+    "/dashboard/leader-task": "leaderTask",
+    "/dashboard/approval-list": "approvalList",
   };
 
 useEffect(() => {

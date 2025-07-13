@@ -1,14 +1,18 @@
 package org.mdt.crewtaskmanagement.mapper;
 
+import lombok.RequiredArgsConstructor;
 import org.mdt.crewtaskmanagement.dto.task.TaskDto;
 import org.mdt.crewtaskmanagement.model.Task;
-import org.mdt.crewtaskmanagement.model.system.Component;
-import org.mdt.crewtaskmanagement.model.type.TaskInterval;
-
-
+import org.mdt.crewtaskmanagement.service.ICompanyService;
+import org.mdt.crewtaskmanagement.service.IComponentService;
+import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Repository;
+@Component
+@RequiredArgsConstructor
 public class TaskMapper {
+    private final IComponentService componentService;
 
-    public static Task fromTaskDto(TaskDto dto) {
+    public  Task fromTaskDto(TaskDto dto) {
         Task task = new Task();
         if (dto.getId() != 0L) {
             task.setId(dto.getId());
@@ -17,7 +21,6 @@ public class TaskMapper {
         task.setDescription(dto.getDescription());
         task.setPosition(dto.getPosition());
         task.setCritical(dto.isCritical());
-        task.setTaskType(Enum.valueOf(TaskInterval.class, dto.getTaskType()));
         task.setKind(Enum.valueOf(Task.TaskKind.class, dto.getKind()));
         return task;
     }
@@ -29,9 +32,9 @@ public class TaskMapper {
         taskDto.setDescription(task.getDescription());
         taskDto.setPosition(task.getPosition());
         taskDto.setCritical(task.isCritical());
+        taskDto.setIntervalValue(task.getIntervalValue());
+        taskDto.setIntervalUnit(task.getIntervalUnit().toString());
         taskDto.setKind(task.getKind().toString());
-        taskDto.setTaskType(task.getTaskType().toString());
-        taskDto.setComponentName(task.getComponent().getComponentName());
         return taskDto;
     }
 }

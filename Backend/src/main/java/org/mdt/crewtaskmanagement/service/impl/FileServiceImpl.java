@@ -12,12 +12,9 @@ import org.mdt.crewtaskmanagement.model.system.Machinery;
 import org.mdt.crewtaskmanagement.repository.entity.system.ComponentRepository;
 import org.mdt.crewtaskmanagement.repository.entity.system.MachGroupRepository;
 import org.mdt.crewtaskmanagement.repository.entity.system.MachineryRepository;
-import org.mdt.crewtaskmanagement.service.FileService;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.mdt.crewtaskmanagement.service.IFileService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 
 
@@ -26,7 +23,7 @@ import java.io.InputStream;
 @Service
 @RequiredArgsConstructor
 @Transactional
-public class FileServiceImpl implements FileService {
+public class FileServiceImpl implements IFileService {
     private final MachGroupRepository machGroupRepository;
     private final MachineryRepository machineryRepository;
     private final ComponentRepository componentRepository;

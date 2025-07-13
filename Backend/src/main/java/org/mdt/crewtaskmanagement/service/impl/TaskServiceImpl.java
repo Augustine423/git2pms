@@ -2,9 +2,7 @@ package org.mdt.crewtaskmanagement.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import org.mdt.crewtaskmanagement.dto.task.CrewTaskDtoOutPut;
-import org.mdt.crewtaskmanagement.dto.task.PageableTaskListDto;
 import org.mdt.crewtaskmanagement.dto.task.TaskDto;
-import org.mdt.crewtaskmanagement.mapper.CrewTaskMapper;
 import org.mdt.crewtaskmanagement.mapper.TaskMapper;
 import org.mdt.crewtaskmanagement.model.Crew;
 import org.mdt.crewtaskmanagement.model.Ship;
@@ -13,67 +11,101 @@ import org.mdt.crewtaskmanagement.model.TaskAssignment;
 import org.mdt.crewtaskmanagement.model.system.Component;
 import org.mdt.crewtaskmanagement.output.PageResult;
 import org.mdt.crewtaskmanagement.repository.entity.*;
-import org.mdt.crewtaskmanagement.service.TaskService;
+import org.mdt.crewtaskmanagement.service.IMaintenanceLogService;
+import org.mdt.crewtaskmanagement.service.ITaskService;
+import org.mdt.crewtaskmanagement.utils.GetEntitesWithPageable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.util.Comparator;
+import java.time.LocalDateTime;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-public class TaskServiceImpl implements TaskService {
+public class TaskServiceImpl implements ITaskService {
     private final TaskRepository taskRepository;
     private final CrewRepository crewRepository;
-    private final ShipRepository shipRepository;
     private final TaskAssignmentRepository tsrepo;
     private final ComponentRepositoryOne componentRepository;
+    private final CrewAssignmentRepository crewAssignmentRepository;
+    private final IMaintenanceLogService maintenanceLogService;
+    private final TaskAssignmentRepository taskAssignmentRepository;
+    private final TaskMapper taskMapper;
+
 
     @Override
-    public List<CrewTaskDtoOutPut> getTasksByCrewId(long crewId) {
-        List<TaskAssignment> assignments = tsrepo.findByCrewIdWithDetails(crewId);
-        return assignments.stream()
-                .sorted(Comparator.comparing(TaskAssignment::getDeadlineDate))
-                .map(CrewTaskMapper::toDto)
-                .collect(Collectors.toList());
+    public PageResult<CrewTaskDtoOutPut> getTasksByCrewId(long crewId,int page,int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("deadlineDate"));
+        var dtos =  tsrepo.findAllTasksByCrewId(crewId,pageable);
+        return GetEntitesWithPageable.getAllWithPageable(pageable,dtos,null);
+    }
+
+    @Override
+    public PageResult<CrewTaskDtoOutPut> getUnfinishedTasksByCrewId(long crewId, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("deadlineDate"));
+        Page<CrewTaskDtoOutPut> dtos =  tsrepo.findUncompletedTasksByCrewId(crewId,pageable);
+        return GetEntitesWithPageable.getAllWithPageable(pageable,dtos,null);
+    }
+
+    @Override
+    public PageResult<CrewTaskDtoOutPut> getUnfinishedTasksCrossedDeadlineByCrewId(long crewId, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("deadlineDate"));
+        Page<CrewTaskDtoOutPut> dtos =  tsrepo.findOverdueTasksByCrewId(crewId,LocalDate.now(),pageable);
+        return GetEntitesWithPageable.getAllWithPageable(pageable,dtos,null);
+    }
+
+    @Override
+    public PageResult<CrewTaskDtoOutPut> getFinishedTasksByCrewId(long crewId, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("deadlineDate"));
+        Page<CrewTaskDtoOutPut> dtos =  tsrepo.findCompletedTasksByCrewId(crewId,pageable);
+        return GetEntitesWithPageable.getAllWithPageable(pageable,dtos,null);
     }
 
 
     @Override
-    public void deleteTask(long id) {
-        taskRepository.deleteById(id);
+    public String deleteTask(long id) {
+         taskRepository.deleteById(id);
+         return "Task with id " + id + " deleted";
 
     }
 
     @Override
-    public void assignTaskToCrew(long taskId, long crewId) {
-        Task task = taskRepository.findById(taskId).get();
-        Crew crew = crewRepository.findById(crewId).get();
-        Ship ship = shipRepository.findById(1L).get();
+    public String assignTaskToCrew(long taskId, long crewId) {
+
+        Task task;
+        task = taskRepository.findById(taskId).orElseThrow();
+        Crew crew = crewRepository.findById(crewId).orElseThrow();
+        Ship ship = crewAssignmentRepository.getShipByCrewId(crewId).orElseThrow();
         TaskAssignment ta = new TaskAssignment();
+        LocalDateTime nextDueDate = maintenanceLogService.calculateNextDate(
+                LocalDateTime.now(),
+                task.getIntervalValue(),
+                task.getIntervalUnit()
+        );
         ta.setTask(task);
         ta.setCrew(crew);
         ta.setShip(ship);
+        ta.setReportTo(crewAssignmentRepository.findCrewReportTo(crewId).orElseThrow());
+        ta.setStatus(TaskAssignment.AssignmentStatus.UPCOMING);
         ta.setAssignedDate(LocalDate.now());
-        ta.setDeadlineDate(LocalDate.now());
+        ta.setDeadlineDate(!task.getMaintenanceLogs().isEmpty() ? task.getMaintenanceLogs().getLast().getNextDue() : nextDueDate.toLocalDate());
         tsrepo.save(ta);
-
-
+        return   "Assigned task with id " + taskId + " to " + crewId;
     }
 
     public TaskDto registerTask(TaskDto dto){
-        Task task = TaskMapper.fromTaskDto(dto);
+        Task task = taskMapper.fromTaskDto(dto);
         Component component = componentRepository.findByComponentName(dto.getComponentName()).orElseThrow();
         task.setComponent(component);
         return TaskMapper.toTaskDto(taskRepository.save(task));
     }
 
     public TaskDto updateTask(TaskDto dto){
-        Task task = TaskMapper.fromTaskDto(dto);
+        Task task = taskMapper.fromTaskDto(dto);
         task.setId(dto.getId());
         taskRepository.save(task);
         return TaskMapper.toTaskDto(task);
@@ -83,25 +115,18 @@ public class TaskServiceImpl implements TaskService {
         return TaskMapper.toTaskDto(taskRepository.findById(id).orElseThrow());
     }
 
-    public PageResult<TaskDto> getAllTasks(int page, int size){
-        var pageable = PageRequest.of(page, size);
-        Page<Task> tasks = taskRepository.findAll(pageable);
+    public Task getById(long id){
+        return taskRepository.findById(id).orElseThrow();
+    }
 
-
-        //  Map to DTO
-        List<TaskDto> dtoList = tasks.stream()
-                .map(task -> TaskMapper.toTaskDto(task))
-                .toList();
-
-        return new PageResult<TaskDto>(
-                dtoList,
-                tasks.getTotalElements(),
-                size,
-                page
-        );
-        //.stream().map(TaskMapper::toTaskDto).collect(Collectors.toList());
+    public TaskAssignment getTaskAssignmentById(long id){
+        return taskAssignmentRepository.findById(id).orElseThrow();
     }
 
 
-
+    public PageResult<TaskDto> getAllTasks(int page, int size){
+        var pageable = PageRequest.of(page, size);
+        Page<Task> tasks = taskRepository.findAll(pageable);
+        return GetEntitesWithPageable.getAllWithPageable(pageable,tasks, TaskMapper::toTaskDto);
+    }
 }

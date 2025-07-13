@@ -11,7 +11,7 @@ public class ReportRequestDto {
     private long id;
     private String title;
     private long crewId;
-    private long t_a_id;
+    private long taskAssignmentId;
     private String reportType;//user enter
     private String content; //user enter
     private String requestDate;

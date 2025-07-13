@@ -51,7 +51,6 @@ public class SecurityConfig {
                     config.addAllowedMethod("*");
                     config.addExposedHeader("*");
                     config.setAllowedOriginPatterns(List.of("*"));
-
                     return config;
                 }
             };

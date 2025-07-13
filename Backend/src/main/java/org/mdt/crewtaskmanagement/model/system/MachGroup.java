@@ -18,7 +18,7 @@ public class MachGroup {
     private long id;
     private String machGroupName;
     @OneToMany(mappedBy = "machGroup",cascade = CascadeType.ALL,orphanRemoval = true)
-    private List<Machinery> Machineries = new ArrayList<Machinery>();
+    private List<Machinery> machineries = new ArrayList<Machinery>();
 
     public MachGroup(String machGroupName) {
         this.machGroupName = machGroupName;
@@ -26,6 +26,6 @@ public class MachGroup {
 
     public void addMachinery(Machinery machinery) {
         machinery.setMachGroup(this);
-        Machineries.add(machinery);
+        machineries.add(machinery);
     }
 }

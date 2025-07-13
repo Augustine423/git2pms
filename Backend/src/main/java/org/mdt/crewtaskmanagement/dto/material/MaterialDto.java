@@ -3,9 +3,6 @@ package org.mdt.crewtaskmanagement.dto.material;
 import lombok.Builder;
 import lombok.Data;
 
-import java.math.BigDecimal;
-import java.time.LocalDate;
-
 @Data
 @Builder
 public class MaterialDto {
@@ -14,11 +11,14 @@ public class MaterialDto {
     private String name;
     private String type;
     private String description;
-    private boolean useStatus;
+    private String status;         // Should be string enum (e.g. "AVAILABLE")
     private String manufacturer;
     private long price;
     private String condition;
     private String supplierInfo;
     private String receivedDate;
-    private String lifeTime;
+    private int lifeTimeHours;     // was named "lifeTime" — renamed to match entity
+    private String expectedExpiryDate;
+    private String locationCode;
+    private Long shipId;
 }

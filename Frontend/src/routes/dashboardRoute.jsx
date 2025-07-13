@@ -4,6 +4,7 @@ import DashboardLayout from '../features/dashboard/common/DashboardLayout';
 import shipRoute from './shipRoute';
 import seamanRoute from './seamanRoute';
 import crewRoute from './crewRoute';
+import leaderRoute from './leaderRoute';
 const dashboardRoute = [
   {
     path: "/dashboard",
@@ -15,7 +16,8 @@ const dashboardRoute = [
       },
       ...shipRoute,
       ...seamanRoute,
-      ...crewRoute
+      ...crewRoute,
+      ...leaderRoute,
     ],
   },
 ];

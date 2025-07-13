@@ -21,9 +21,19 @@ public class TaskAssignment {
     private Crew crew;
     @ManyToOne
     private Ship ship;
+    @OneToOne
+    private Crew reportTo;
     private LocalDate assignedDate;
     private LocalDate deadlineDate;
-    private boolean completed = false;
+    @Enumerated(EnumType.STRING)
+    private AssignmentStatus status;
+    public enum AssignmentStatus {
+        UPCOMING,  // Not started, crew won’t see yet
+        ACTIVE,    // Visible to crew, current cycle
+        COMPLETED,
+        CANCELLED,
+        FAILED
+    }
 
 
 

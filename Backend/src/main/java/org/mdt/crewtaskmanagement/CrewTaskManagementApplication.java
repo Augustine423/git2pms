@@ -33,64 +33,13 @@ public class CrewTaskManagementApplication {
            admin.setEmail("admin@gmail.com");
            admin.setPassword(passwordEncoder.encode("12345"));
             Role adminRole = new Role();
-            adminRole.setRoleName("ADMIN");
+            adminRole.setRoleName(Role.UserRole.ADMIN);
             roleRepository.save(adminRole);
             admin.addRole(adminRole);
             adminRepository.save(admin);
 
         };
     }
-    @Bean @Profile("dev")
-    public ApplicationRunner init3() {
-        return args -> {
-            Admin admin = new Admin();
-            admin.setFirstName("Admin2");
-            admin.setLastName("User+");
-            admin.setEducation("Education");
-            admin.setEmail("admin@gmail.com+");
-            admin.setPassword(passwordEncoder.encode("12345"));
-            Role adminRole = new Role();
-            adminRole.setRoleName("ADMIN");
-            roleRepository.save(adminRole);
-            admin.addRole(adminRole);
-            adminRepository.save(admin);
-
-        };
-    }
-
-
-    @Bean
-    @Transactional
-    @Profile("dev")
-    public ApplicationRunner runner() {
-        return args -> {
-
-
-            Role workerRole = new Role();
-            workerRole.setRoleName("WORKER");
-            roleRepository.save(workerRole);
-
-            Role thirdleadeRole = new Role();
-            thirdleadeRole.setRoleName("THIRD_LEADER");
-            roleRepository.save(thirdleadeRole);
-
-            Role firstleaderRole = new Role();
-            firstleaderRole.setRoleName("FIRST_LEADER");
-            roleRepository.save(firstleaderRole);
-
-            Role secondleaderRole = new Role();
-            secondleaderRole.setRoleName("SECOND_LEADER");
-            roleRepository.save(secondleaderRole);
-
-            Role captainRole = new Role();
-            captainRole.setRoleName("CAPTAIN");
-            roleRepository.save(captainRole);
-        };
-    }
-
-
-
-
     public static void main(String[] args) {
         SpringApplication.run(CrewTaskManagementApplication.class, args);
     }

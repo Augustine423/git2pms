@@ -2,6 +2,7 @@ package org.mdt.crewtaskmanagement.dto.task;
 
 import lombok.Builder;
 import lombok.Data;
+import org.mdt.crewtaskmanagement.model.Task;
 
 @Data
 public class TaskDto {
@@ -13,12 +14,18 @@ public class TaskDto {
 
     private String position;
 
-    private String componentName;// this is for location
-
-    private String taskType;
-
-    private String kind;
-
     private boolean critical;
+
+    private String componentName;
+
+    private int intervalValue;
+
+    private String intervalUnit;
+
+    private String kind;// this is for location
+
+
+
+
 
 }

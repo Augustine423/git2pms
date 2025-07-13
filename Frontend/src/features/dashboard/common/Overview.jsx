@@ -1,27 +1,27 @@
 import React from "react";
-// import { useState } from "react";
-import TopSummary from './OverviewComponents/TopSummary';
-import SeamanInfo from "./OverviewComponents/SeamanInfo";
+import TopSummary from "./OverviewComponents/TopSummary";
 import Sidebar from "./OverviewComponents/Sidebar";
-
-
+import SeamanInfo from "./OverviewComponents/SeamanInfo";
 
 const Overview = () => {
-  // const [searchTerm, setSearchTerm] = useState("");
   return (
-    <>
-    <div className="min-w-screen bg-gray-100 p-6">
-      {/* Top Summary Cards */}
-      <TopSummary/>
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-       <SeamanInfo/>
-        {/* Sidebar */}
-        <div className="space-y-6">
-          <Sidebar/>
-        </div>
+     <div className="min-w-full  p-6">
+      <div className=" min-h-screen rounded-[20px] shadow-2xl">
+      {/* Top Cards Section */}
+      <div className=" mb-4 mt-4">
+        <TopSummary />
+      </div>
+
+      {/* Repair Date Table Section */}
+      <div className="mb-4">
+        <Sidebar />
+      </div>
+      {/* Bottom Sections */}
+      <div className="mt-4">
+        <SeamanInfo />
       </div>
     </div>
-    </>
+    </div>
   );
 };
 

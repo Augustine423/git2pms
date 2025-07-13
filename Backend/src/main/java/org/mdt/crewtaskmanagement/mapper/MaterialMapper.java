@@ -3,7 +3,7 @@ package org.mdt.crewtaskmanagement.mapper;
 import org.mdt.crewtaskmanagement.dto.material.MaterialDto;
 import org.mdt.crewtaskmanagement.model.Material;
 import org.mdt.crewtaskmanagement.model.Ship;
-import java.math.BigDecimal;
+
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 
@@ -20,16 +20,22 @@ public class MaterialMapper {
         material.setCondition(dto.getCondition());
         material.setType(dto.getType());
         material.setDescription(dto.getDescription());
-        material.setUseStatus(dto.isUseStatus());
+
+        if (dto.getStatus() != null) {
+            material.setStatus(Material.MaterialStatus.valueOf(dto.getStatus()));
+        }
+
         material.setManufacturer(dto.getManufacturer());
         material.setPrice(dto.getPrice());
-        material.setCondition(dto.getCondition());
         material.setSupplierInfo(dto.getSupplierInfo());
         material.setReceivedDate(parseDate(dto.getReceivedDate()));
-        material.setLifeTime(dto.getLifeTime());
+        material.setLifeTimeHours(dto.getLifeTimeHours());
+        material.setExpectedExpiryDate(parseDate(dto.getExpectedExpiryDate()));
+        material.setLocationCode(dto.getLocationCode());
 
 
-        // Only set ID if present in DTO (not 0)
+
+        // Only set ID if present in DTO
         if (dto.getId() != 0L) {
             material.setId(dto.getId());
         }
@@ -49,25 +55,21 @@ public class MaterialMapper {
                 .type(entity.getType())
                 .condition(entity.getCondition())
                 .description(entity.getDescription())
-                .useStatus(entity.isUseStatus())
+                .status(entity.getStatus() != null ? entity.getStatus().toString() : null)
                 .manufacturer(entity.getManufacturer())
                 .price(entity.getPrice())
-                .condition(entity.getCondition())
                 .supplierInfo(entity.getSupplierInfo())
                 .receivedDate(formatDate(entity.getReceivedDate()))
-                .lifeTime(entity.getLifeTime())
+                .lifeTimeHours(entity.getLifeTimeHours())
+                .expectedExpiryDate(formatDate(entity.getExpectedExpiryDate()))
+                .locationCode(entity.getLocationCode())
+                .shipId(entity.getShip() != null ? entity.getShip().getId() : null)
                 .build();
     }
 
-    // Optional: Include ship information in the DTO
+    // Optional method to include more ship info
     public static MaterialDto toDtoWithShip(Material entity) {
-        if (entity == null) {
-            return null;
-        }
-
-        MaterialDto dto = toDto(entity);
-        // Add ship ID or other ship info if needed
-        return dto;
+        return toDto(entity); // Extend this later if you need more ship details
     }
 
     private static LocalDate parseDate(String dateString) {

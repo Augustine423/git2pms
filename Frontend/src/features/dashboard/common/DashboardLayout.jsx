@@ -26,18 +26,18 @@ const DashboardLayout = () => {
       },200)
     }
   return (
-    <div className="flex bg-gradient-to-r from-[#fffefe] to-[#5c5e63]">
+    <div className="flex bg-gradient-to-r from-slate-300 to-green-300 ">
     <SidebarDashboard handleSelectItem={handleSelectItem} setResetMenus={fn => resetMenusRef.current = fn}/>
     {/* Main Content */}
     <div className="flex flex-1 flex-col w-5/6 min-h-screen justify-between">
    
-      <div className="w-full p-3">
+      <div className="w-full pt-3">
         <Topbar />
       </div>
     
       <div className="flex flex-col min-h-screen xl:min-h-[700px] w-full">
         <Suspense fallback={<PageLoading/>}>
-        <div className="w-full md:w-[720px]  lg:w-[1208px] mx-auto ">
+        <div className="w-full md:w-[720px]  min-w-full mx-auto ">
           <Outlet />
           </div>
         </Suspense>

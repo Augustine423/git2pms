@@ -2,15 +2,18 @@ package org.mdt.crewtaskmanagement.service.impl;
 import lombok.RequiredArgsConstructor;
 import org.mdt.crewtaskmanagement.dto.crew.AdminDto;
 import org.mdt.crewtaskmanagement.dto.crew.CrewDto;
+import org.mdt.crewtaskmanagement.exception.ServiceBaseException;
 import org.mdt.crewtaskmanagement.jwt.JwtTokenProvider;
 import org.mdt.crewtaskmanagement.mapper.CrewMapper;
 import org.mdt.crewtaskmanagement.model.Admin;
 import org.mdt.crewtaskmanagement.model.Crew;
 import org.mdt.crewtaskmanagement.model.Role;
+import org.mdt.crewtaskmanagement.model.type.CrewRank;
 import org.mdt.crewtaskmanagement.repository.entity.AdminRepository;
 import org.mdt.crewtaskmanagement.repository.entity.CrewRepository;
 import org.mdt.crewtaskmanagement.repository.entity.RoleRepository;
 import org.mdt.crewtaskmanagement.repository.entity.UserRepository;
+import org.mdt.crewtaskmanagement.utils.RoleMapper;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -35,9 +38,12 @@ public class AuthService {
     private  final JwtTokenProvider jwtTokenProvider;
     private final AdminRepository adminDao;
     private final CrewRepository crewRepository;
+    private final RoleRepository roleRepository;
 
     public record LoginResponse(String token,long id,List<String> roles){}
+
     public LoginResponse login(String username, String password) {
+
         UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(username, password);
         Authentication authentication = authenticationManager.authenticate(token);
         SecurityContextHolder.getContext().setAuthentication(authentication);
@@ -47,14 +53,15 @@ public class AuthService {
         List<String> roles = authentication.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.toList());
+
         return  new LoginResponse(jwtTokenProvider.generateToken(authentication),userId,roles) ;
     }
     @Transactional
     public String registerAdmin(AdminDto request) {
-        Role adminRole = roleDao.findByRoleName("ADMIN")
+        Role adminRole = roleDao.findByRoleName(Role.UserRole.ADMIN)
                 .orElseGet(() -> {
                     Role r = new Role();
-                    r.setRoleName("ADMIN");
+                    r.setRoleName(Role.UserRole.ADMIN);
                     return roleDao.save(r);
                 });
 
@@ -69,37 +76,20 @@ public class AuthService {
 
         return "Admin registered successfully";
     }
+
     @Transactional
     public String registerCrewByAdmin(CrewDto dto) {
         dto.setPassword(passwordEncoder.encode(dto.getPassword()));
-        Role userRole;
-        switch (dto.getCrewRank().toLowerCase()) {
-            case "first":
-                userRole = roleDao.findByRoleName("FIRST_LEADER").orElseThrow();
-                break;
-            case "second":
-                userRole = roleDao.findByRoleName("SECOND_LEADER").orElseThrow();
-                break;
-            case "third":
-                userRole = roleDao.findByRoleName("THIRD_LEADER").orElseThrow();
-                break;
-            case "general":
-                userRole = roleDao.findByRoleName("WORKER").orElseThrow();
-                break;
-            default:
-                throw new IllegalArgumentException("Invalid crew rank: " + dto.getCrewRank());
-        }
-
-        // Ensure the Crew has an ID if you're updating
-
-
-        // Make sure roles are properly initialized
-
-
-
+        Role.UserRole userRole = RoleMapper.mapCrewRankToRole(CrewRank.valueOf(dto.getCrewRank()));
 
         Crew crew = CrewMapper.fromDto(dto);
-        crew.addRole(userRole);
+        Role crewRole = roleRepository.findByRoleName(userRole)
+                .orElseGet(() -> {
+                    Role newRole = new Role();
+                    newRole.setRoleName(userRole);
+                    return roleRepository.saveAndFlush(newRole); // optionally save it
+                });
+        crew.addRole(crewRole);
         crewRepository.save(crew);
 
         return "Crew registered successfully by Admin";

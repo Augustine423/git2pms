@@ -2,6 +2,7 @@ import React from 'react'
 import { useAppStore } from '../stores/store'
 import CrewTask from '../features/dashboard/common/crewtask/components/CrewTask';
 import RequestForm from '../features/dashboard/common/crewtask/components/TaskRequest/RequestForm';
+
 export const translations =  {
     ENG:{
         dashboardOverview:"Overview",
@@ -24,6 +25,8 @@ export const translations =  {
         approvedRequest:"Approved Request",
         rejectedRequest:"Rejected Request",
         rejectedRequestList:"Rejected Request List",
+        leaderTask:"Leader Task",
+        approvalList:"Approval List",
     }
 }
 export const useTranslation=()=>{

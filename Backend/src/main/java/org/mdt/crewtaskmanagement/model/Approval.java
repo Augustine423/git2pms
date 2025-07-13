@@ -18,11 +18,12 @@ public class Approval {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "crew_id")
-    private Crew crew;
+    @JoinColumn(name = "approver_id")
+    private Crew approver;
 
+    @Column(name = "approval_rank")
     @Enumerated(EnumType.STRING)
-    private CrewRank position;
+    private CrewRank rank;
 
     private LocalDateTime approvalTimestamp;
 

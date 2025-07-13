@@ -4,13 +4,21 @@ import lombok.RequiredArgsConstructor;
 import org.mdt.crewtaskmanagement.dto.approval.ApprovalDtoInput;
 import org.mdt.crewtaskmanagement.dto.approval.ApprovalDtoOutput;
 import org.mdt.crewtaskmanagement.dto.material.MaterialDto;
+import org.mdt.crewtaskmanagement.dto.reportrequest.MaterialRequestDto;
 import org.mdt.crewtaskmanagement.dto.reportrequest.ReportRequestDto;
+import org.mdt.crewtaskmanagement.exception.DuplicateApprovalException;
 import org.mdt.crewtaskmanagement.mapper.MaterialMapper;
 import org.mdt.crewtaskmanagement.mapper.ReportRequestMapper;
 import org.mdt.crewtaskmanagement.model.*;
 import org.mdt.crewtaskmanagement.model.type.CrewRank;
+import org.mdt.crewtaskmanagement.output.PageResult;
 import org.mdt.crewtaskmanagement.repository.entity.*;
-import org.mdt.crewtaskmanagement.service.ReportRequestService;
+import org.mdt.crewtaskmanagement.service.IReportRequestService;
+import org.mdt.crewtaskmanagement.utils.GetEntitesWithPageable;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -20,11 +28,11 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
-
 @Service
 @Transactional
 @RequiredArgsConstructor
-public class ReportRequestServiceImpl implements ReportRequestService {
+public class ReportRequestServiceImpl implements IReportRequestService {
+
     private final CrewRepository crewRepository;
     private final MaterialRepository materialRepository;
     private final ReportRequestRepository reportRequestRepository;
@@ -32,155 +40,123 @@ public class ReportRequestServiceImpl implements ReportRequestService {
     private final TaskAssignmentRepository ts_dao;
     private final ApprovalRepository approvalRepository;
     private final MaterialServiceImpl materialService;
+    private final ReportRequestMapper reportRequestMapper;
 
-
-//    @Override
-//    public ReportRequestDto createReportRequest(ReportRequestDto reportRequestDto) {
-//        ReportRequest reportRequest = new ReportRequest();
-//        reportRequest.setTitle(reportRequestDto.getTitle());
-//        reportRequest.setContent(reportRequestDto.getContent());
-//        Crew crew = crewRepository.findById(reportRequestDto.getCrewId()).orElseThrow();
-//        reportRequest.setCrew(crew);
-//        TaskAssignment t_a = ts_dao.findById(reportRequestDto.getT_a_id()).orElseThrow();
-//        reportRequest.setTaskAssignment(t_a);
-//        reportRequest.setReportType(reportRequestDto.getReportType());
-//        reportRequest.setRequestDate(LocalDate.now());
-//        List<Material> materials = new ArrayList<>();
-//        for( var m : reportRequestDto.getMaterialsIds()){
-//             var usedMaterial = materialRepository.findById(m).get();
-//             reportRequest.
-//
-//        }
-//        re
-//
-//
-//        reportRequestRepository.save(reportRequest);
-//        return ReportRequestMapper.toDto(reportRequest);
-//    }
-
-  //  @Override
+    // ✅ GET MATERIALS for a REPORT
     public List<MaterialDto> getMaterialsFromReportRequest(long reportRequestId) {
         List<Material> materials = mrrRepository.getMaterialsUsedInReportRequestByReportRequestId(reportRequestId);
-        List<MaterialDto> materialDtos = materials.stream()
-                .map(m -> MaterialMapper.toDto(m))
-                .collect(Collectors.toList());
-        return materialDtos;
+        return materials.stream().map(MaterialMapper::toDto).collect(Collectors.toList());
     }
-    @Transactional
+
+    // ✅ ASSIGN MATERIALS to a REPORT
     public String assignMaterialsToReportRequest(long reportRequestId, long materialId, int quantity) {
-        MaterialReportRequest mrr = new MaterialReportRequest();
         ReportRequest reportRequest = reportRequestRepository.findById(reportRequestId).orElseThrow();
         Material material = materialRepository.findById(materialId).orElseThrow();
+
+        MaterialReportRequest mrr = new MaterialReportRequest();
         mrr.setMaterial(material);
         mrr.setReportRequest(reportRequest);
         mrrRepository.save(mrr);
-        System.out.println(mrr.getReportRequest().getId() + " " + mrr.getMaterial().getId() + " " + mrr.getMaterial().getName());
-        return "added material " + mrr.getMaterial().getName() + " to report request " + mrr.getReportRequest().getTitle();
+
+        return "Added material " + material.getName() + " to report request " + reportRequest.getTitle();
     }
 
+    // ✅ PAGINATED REPORT REQUESTS by RANK
+//    public PageResult<ReportRequestDto> getPendingReportRequests(long crewId, int page, int size) {
+//        Pageable pageable = PageRequest.of(page, size);
+//        CrewRank position = crewRepository.findById(crewId).orElseThrow().getCrewRank();
+//
+//        Page<ReportRequest> reportRequests = switch (position) {
+//            case CHIEF_ENGINEER -> reportRequestRepository.getReportRequestsForFirstLeader(pageable);
+//            case SECOND_ENGINEER -> reportRequestRepository.getReportRequestsForSecondLeader(pageable);
+//            case THIRD_ENGINEER -> reportRequestRepository.getReportRequestsForThirdLeader(pageable);
+//            default -> Page.empty();
+//        };
+//
+//        return GetEntitesWithPageable.getAllWithPageable(pageable, reportRequests, reportRequestMapper::toDto);
+//    }
 
-    public List<ReportRequestDto> getPendingReportRequests(long crewId) {
-        CrewRank position = crewRepository.findById(crewId).get().getCrewRank();
-        List<ReportRequest> reportRequests = new ArrayList<>();
-        if(position == CrewRank.valueOf("first")){
-            reportRequests = reportRequestRepository.getReportRequestsForFirstLeader();
-        }
-        else if(position == CrewRank.valueOf("second")){
-            reportRequests = reportRequestRepository.getReportRequestsForSecondLeader();
-        }
-        else if(position == CrewRank.valueOf("third")){
-            reportRequests = reportRequestRepository.getReportRequestsForThirdLeader();
-        }
-        return reportRequests.stream()
-                .map(r -> ReportRequestMapper.toDto(r))
-                .collect(Collectors.toList());
+    // ✅ APPROVAL LOGIC
+    public void addApprovalForReportRequest(ApprovalDtoInput input) throws DuplicateApprovalException {
+        ReportRequest reportRequest = reportRequestRepository.findById(input.getReportRequestId()).orElseThrow();
+        Crew crew = crewRepository.findById(input.getCrewId()).orElseThrow();
 
-    }
-
-//   @Override
-    public void addApprovalForReportRequest( ApprovalDtoInput approvalDtoInput) {
-        ReportRequest reportRequest = reportRequestRepository.findById(approvalDtoInput.getReportRequestId()).orElseThrow();
+        boolean alreadyApproved = reportRequest.getApprovals().stream()
+                .anyMatch(a -> a.getApprover().getId().equals(crew.getId()));
+        if (alreadyApproved) {
+            throw new DuplicateApprovalException(List.of("Already approved", "Duplicate not allowed"));
+        }
 
         Approval approval = new Approval();
         approval.setApprovalTimestamp(LocalDateTime.now());
-        var crew =crewRepository.findById(approvalDtoInput.getCrewId()).orElseThrow();
-        approval.setCrew(crew);
-
-        approval.setPosition(CrewRank.valueOf(crew.getCrewRank().toString()));
+        approval.setApprover(crew);
+        approval.setRank(crew.getCrewRank());
         approval.setReportRequest(reportRequest);
+
         approvalRepository.save(approval);
         reportRequest.addApproval(approval);
+
+        // ✅ If final approver
+        if (crew.getCrewRank() == CrewRank.CHIEF_ENGINEER) {
+            reportRequest.setStatus(ReportRequest.ReportStatus.APPROVED);
+            reportRequest.getMaterialReportRequests().forEach(mrr -> mrr.getMaterial().setStatus(Material.MaterialStatus.IN_USE));
+        }
+
         reportRequestRepository.save(reportRequest);
-
-        if(crew.getCrewRank() == CrewRank.valueOf("first")){
-
-            reportRequest.setApproved(true);
-
-            reportRequest.getMaterialReportRequests().stream()
-                .peek(m -> m.getMaterial().setUseStatus(true))
-                .collect(Collectors.toList());
-
-        }}
-
-
-
-  //  @Override
-    public List<ReportRequestDto> getApprovedReportRequest(long crewId) {
-        return reportRequestRepository.getApprovedReportRequests(crewId).stream()
-                .map(r -> ReportRequestMapper.toDto(r))
-                .collect(Collectors.toList());
     }
 
-    @Transactional
-    public ReportRequestDto createReportWithMaterials(@RequestBody ReportRequestDto dto) {
-        ReportRequest report = new ReportRequest();
-        report.setTitle(dto.getTitle());
-        report.setContent(dto.getContent());
-        report.setReportType(dto.getReportType());
-        System.out.println(dto.getRequestedMaterials()  + "materilas");
+    // ✅ CREATE REPORT WITH MATERIALS
+    public ReportRequestDto createReportWithMaterials(ReportRequestDto dto) {
+        ReportRequest report = reportRequestMapper.fromDto(dto);
+        ReportRequest saved = reportRequestRepository.save(report);
 
-        TaskAssignment taskAssignment = ts_dao.findById(dto.getT_a_id()).orElseThrow();
-        report.setTaskAssignment(taskAssignment);
-
-        report.setRequestDate(LocalDate.parse(dto.getRequestDate().toString()));
-        report.setCrew(crewRepository.findById(dto.getCrewId()).orElseThrow());
-        var currentReport = reportRequestRepository.save(report);
-        if(!dto.getRequestedMaterials().isEmpty()) {
+        if (dto.getRequestedMaterials() != null && !dto.getRequestedMaterials().isEmpty()) {
+            List<MaterialReportRequest> mrrList = new ArrayList<>();
+            for (MaterialRequestDto req : dto.getRequestedMaterials()) {
+                List<Material> materials = materialRepository.findByMaterialName(req.getMaterialName(), PageRequest.of(0, req.getQuantity()));
 
 
-            for (var m : dto.getRequestedMaterials()) {
-                List<Material> materials = materialRepository.findByMaterialName(m.getMaterialName(), m.getQuantity()).orElseThrow();
-
-                if (!materials.isEmpty()) {
-
-
-                    for (Material material : materials) {
-                        System.out.println(material.getId() + " " + material.getName());
-                        MaterialReportRequest mrr = new MaterialReportRequest();
-                        mrr.setMaterial(material);
-                        System.out.println(material.getName());
-                        mrr.setReportRequest(currentReport);
-                        try {
-                            mrrRepository.save(mrr);
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-                    }
-                } else {
-                    System.out.println("not working");
+                for (Material material : materials) {
+                    MaterialReportRequest mrr = new MaterialReportRequest();
+                    mrr.setMaterial(material);
+                    mrr.setReportRequest(saved);
+                    mrrList.add(mrr);
                 }
             }
+            mrrRepository.saveAll(mrrList);
         }
-        return ReportRequestMapper.toDto(currentReport);
+
+        return reportRequestMapper.toDto(saved);
     }
 
+    // ✅ GET APPROVAL DETAILS
     public List<ApprovalDtoOutput> getApprovalsForReportRequest(long reportRequestId) {
         var approvals = approvalRepository.getApprovalsByReportRequestId(reportRequestId);
-        List<ApprovalDtoOutput> approvalDtos = new ArrayList<>();
-        approvals.stream()
-                .map(ap -> new ApprovalDtoOutput(ap.getId(),ap.getReportRequest().getCrew().getFirstName(), ap.getApprovalTimestamp(),ap.getReportRequest().getId(),ap.getCrew().getLastName(),ap.getCrew().getCrewRank().toString()))
-                .forEach(approvalDtos::add);
 
-        return approvalDtos;
+        return approvals.stream()
+                .map(ap -> ApprovalDtoOutput.builder()
+                        .id(ap.getId())
+                        .approver(ap.getApprover().getFirstName())
+                        .approvedBy(ap.getApprover().getLastName())
+                        .approvedDate(ap.getApprovalTimestamp().toString()) // format if needed
+                        .reportRequestId(ap.getReportRequest().getId())
+                        .rank(ap.getApprover().getCrewRank().name())
+                        .build()
+                ).collect(Collectors.toList());
+
+    }
+
+//    // ✅ PAGINATED APPROVED REPORTS
+//    public PageResult<ReportRequestDto> getApprovedReportRequest(long crewId, int page, int size) {
+//        Pageable pageable = PageRequest.of(page, size);
+//        var reports = reportRequestRepository.getApprovedReportRequests(crewId, pageable);
+//        return GetEntitesWithPageable.getAllWithPageable(pageable, reports, reportRequestMapper::toDto);
+//    }
+
+    // ✅ ALL REPORTS PAGINATED
+    public PageResult<ReportRequestDto> getAllReportRequests(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        var reportRequests = reportRequestRepository.findAll(pageable);
+        return GetEntitesWithPageable.getAllWithPageable(pageable, reportRequests, reportRequestMapper::toDto);
     }
 }

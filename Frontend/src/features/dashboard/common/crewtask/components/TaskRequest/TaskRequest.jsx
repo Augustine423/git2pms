@@ -24,7 +24,7 @@ const TaskRequest = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await fetch("http://pms.aioceaneye.com:9091/mdt/task/register", {
+      const response = await fetch("http://3.34.130.139:8081/mdt/task/register", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -41,7 +41,8 @@ const TaskRequest = () => {
     }
   };
   return (
-    <div className="min-h-screen p-6 mx-auto bg-white rounded-[30px] shadow-2xl overflow-hidden">
+    <div className="min-h-screen w-full mt-4 shadow-2xl overflow-hidden">
+      <div className="bg-white mx-4 rounded-[30px] p-6">
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Title */}
         <div className="flex items-center gap-4">
@@ -97,12 +98,12 @@ const TaskRequest = () => {
         </div>
         {/* Component Name */}
         <div className="flex items-center gap-4">
-          <label className="w-32 font-semibold">TaskType:</label>
+          <label className="w-32 font-semibold">Task Interval:</label>
           <input
             type="text"
             name="taskType"
             placeholder="Enter component name Daily, Weekly, Monthly"
-            value={formData.taskType}
+            value={formData.taskInterval}
             onChange={handleChange}
             className="flex-1 border rounded-md px-4 py-2 focus:ring focus:ring-blue-200"
             required
@@ -149,6 +150,7 @@ const TaskRequest = () => {
           </button>
         </div>
       </form>
+      </div>
     </div>
   );
 };

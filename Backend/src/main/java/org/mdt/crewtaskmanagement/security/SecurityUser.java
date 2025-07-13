@@ -2,6 +2,7 @@ package org.mdt.crewtaskmanagement.security;
 
 import lombok.RequiredArgsConstructor;
 import org.apache.catalina.UserDatabase;
+import org.mdt.crewtaskmanagement.model.Role;
 import org.mdt.crewtaskmanagement.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
@@ -26,8 +27,8 @@ public class SecurityUser implements UserDetails {
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return user.getRoles()
                 .stream()
-                .map(r -> new SimpleGrantedAuthority(r.getRoleName()))
-                .collect(Collectors.toSet());
+                .map(r -> new SimpleGrantedAuthority(r.getRoleName().toString()))
+                .collect(Collectors.toList());
     }
 
 

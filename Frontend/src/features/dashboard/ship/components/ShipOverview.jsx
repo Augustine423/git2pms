@@ -131,8 +131,8 @@ const ShipOverview = () => {
 
   return (
     <>
-      <div className="min-h-screen bg-gray-300 p-2">
-        <div className="max-w-9xl mx-auto">
+      <div className="min-h-screen w-full mt-4 shadow-2xl overflow-hidden">
+      <div className="bg-white mx-4 rounded-[30px] p-6">
           
           <div className="overflow-x-auto mt-2">
             <table className="w-full border-separate border-spacing-y-1">

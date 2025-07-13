@@ -2,7 +2,7 @@ package org.mdt.crewtaskmanagement.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.mdt.crewtaskmanagement.dto.ship.ShipDto;
-import org.mdt.crewtaskmanagement.service.ShipService;
+import org.mdt.crewtaskmanagement.output.PageResult;
 import org.mdt.crewtaskmanagement.service.impl.ShipServiceImpl;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -30,20 +30,21 @@ public class ShipController {
         return ResponseEntity.ok(shipService.getShipById(id));
     }
 
-    @GetMapping("/")
-    public ResponseEntity<List<ShipDto>> getAllShips() {
-        return ResponseEntity.ok(shipService.getAllShips());
+    @GetMapping("/all")
+    public ResponseEntity<PageResult<ShipDto>> getAllShips(
+            @RequestParam(defaultValue = "0",required = false) int page,
+            @RequestParam(defaultValue = "10",required = false) int size) {
+
+        return ResponseEntity.ok(shipService.getAllShips(page,size));
     }
 
-//    @GetMapping("/company/{companyId}")
-//    public ResponseEntity<List<ShipDto>> getShipsByCompanyId(@PathVariable("companyId") long companyId) {
-//        return ResponseEntity.ok(shipService.getShipsByCompanyId(companyId));
-//    }
-//
-//    @GetMapping("/imo/{imoNumber}")
-//    public ResponseEntity<ShipDto> getShipByImoNumber(@PathVariable("imoNumber") String imoNumber) {
-//        return ResponseEntity.ok(shipService.getShipByImoNumber(imoNumber));
-//    }
+    @GetMapping("/company/{companyId}")
+    public PageResult<ShipDto> getShipsByCompanyId(@PathVariable("companyId") long companyId,
+                                            @RequestParam(defaultValue = "0",required = false) int page,
+                                            @RequestParam(defaultValue = "10",required = false) int size
+    ) {
+        return shipService.getShipsByCompanyId(companyId,page,size);
+    }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteShipById(@PathVariable("id") long id) {

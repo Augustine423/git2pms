@@ -1,0 +1,9 @@
+POST http://localhost:8080/realms/Hogwarts/protocol/openid-connect/token
+Content-Type: application/x-www-form-urlencoded
+Accept: application/json
+
+grant_type=authorization_code
+client_id=spring-boot-app-client-id
+client_secret=fIQNWrFpios2n8o8lcUjQgtPSOiymSP3
+username=hiramoti
+password=1234

@@ -22,10 +22,10 @@ public class Company extends Auditable {
     private String registeredBy;
     private String companyAddress;
     private String companyEmail;
-    private LocalDate yearEstablished;
+    private String yearEstablished;
     private String companyPhone;
     private String companyFax;
-    @OneToMany
+    @OneToMany(mappedBy = "company", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Ship> ships = new ArrayList<>();
 
     public void addShip(Ship ship) {

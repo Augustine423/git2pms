@@ -8,29 +8,26 @@ import org.mdt.crewtaskmanagement.model.Crew;
 import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
+import java.util.List;
 
-public record CrewParam (String firstname, String lastname, String crewrank){
+public record CrewParam(String firstname, String lastname, String crewrank) {
+
     public Predicate where(CriteriaBuilder cb, Root<Crew> root) {
-        var predicates = new ArrayList<Predicate>();
+        List<Predicate> predicates = new ArrayList<>();
 
-
-
-        if(StringUtils.hasLength(firstname)){
-            var firstNamePredicate = cb.like(cb.lower(root.get("firstName")), firstname.toLowerCase().concat("%"));
-            predicates.add(firstNamePredicate);
-        }
-        if(StringUtils.hasLength(lastname)){
-            var lastNamePredicate = cb.like(cb.lower(root.get("lastName")), lastname.toLowerCase().concat("%"));
-            predicates.add(lastNamePredicate);
-        }
-
-        if(StringUtils.hasLength(crewrank)){
-            var crewRankPredicate = cb.like(cb.lower(root.get("crewRank")),crewrank.toLowerCase().concat("%"));
-            predicates.add(crewRankPredicate);
-        }
+        addPredicateIfNotEmpty(predicates, cb, root, "firstName", firstname);
+        addPredicateIfNotEmpty(predicates, cb, root, "lastName", lastname);
+        addPredicateIfNotEmpty(predicates, cb, root, "crewRank", crewrank);
 
         return cb.and(predicates.toArray(Predicate[]::new));
-
-
     }
+
+    private void addPredicateIfNotEmpty(List<Predicate> predicates, CriteriaBuilder cb, Root<Crew> root, String fieldName, String fieldValue) {
+        if (StringUtils.hasLength(fieldValue)) {
+            Predicate predicate = cb.like(cb.lower(root.get(fieldName)), fieldValue.toLowerCase().concat("%"));
+            predicates.add(predicate);
+        }
+    }
+
+
 }

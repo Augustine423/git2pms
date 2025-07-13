@@ -3,22 +3,20 @@ package org.mdt.crewtaskmanagement.dto.crew;
 import lombok.Builder;
 import lombok.Data;
 
-import java.time.LocalDate;
-import java.util.Date;
 @Data
 @Builder
 public class CrewDto {
-    private long id;
+    private Long id;
     private String firstName;
     private String lastName;
     private String email;
-    private String password;
+    private String password; // Added for fromDto mapping
     private String gender;
     private String phone;
+    private String imgUrl;
     private String birthDate;
     private String joinedDate;
     private boolean active;
-    private String section;
     private String crewRank;
     private String nationality;
     private String emergencyPhone;

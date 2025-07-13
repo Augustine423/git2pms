@@ -26,21 +26,26 @@ public class  ReportRequest {
     private TaskAssignment taskAssignment;
     private String reportType;
     private LocalDate requestDate;
-    private boolean approved;
-    @OneToMany(mappedBy = "reportRequest")
-    private List<Approval> approvals;
 
-    @OneToMany(mappedBy = "reportRequest", cascade = CascadeType.ALL,orphanRemoval = true)
+    @Enumerated(EnumType.STRING)
+    private ReportStatus status;
+
+    @OneToMany(mappedBy = "reportRequest",fetch = FetchType.LAZY)
+    private List<Approval> approvals = new ArrayList<>();
+
+    @OneToMany(mappedBy = "reportRequest", cascade = CascadeType.ALL,orphanRemoval = true,fetch = FetchType.LAZY)
     private List<MaterialReportRequest> materialReportRequests= new ArrayList<>();
 
-    public void addApproval(Approval approval) {
+    public enum ReportStatus {
+        PENDING,
+        APPROVED,
+        PARTIALLY_APPROVED,
+        REJECTED,
+        CANCELLED
+    }
 
+    public void addApproval(Approval approval) {
         approval.setReportRequest(this);
         approvals.add(approval);
     }
-    public void addMaterialReportRequest(MaterialReportRequest materialReportRequest) {
-        materialReportRequest.setReportRequest(this);
-        materialReportRequests.add(materialReportRequest);
-    }
-
 }

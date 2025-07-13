@@ -17,7 +17,7 @@ public class CompanyMapper {
         company.setRegisteredBy(dto.getRegisteredBy());
         company.setCompanyAddress(dto.getCompanyAddress());
         company.setCompanyEmail(dto.getCompanyEmail());
-        company.setYearEstablished(parseDate(dto.getYearEstablished()));
+        company.setYearEstablished(dto.getYearEstablished());
         company.setCompanyPhone(dto.getCompanyPhone());
         company.setCompanyFax(dto.getCompanyFax());
 
@@ -40,7 +40,7 @@ public class CompanyMapper {
                 .registeredBy(entity.getRegisteredBy())
                 .companyAddress(entity.getCompanyAddress())
                 .companyEmail(entity.getCompanyEmail())
-                .yearEstablished(formatDate(entity.getYearEstablished()))
+                .yearEstablished(entity.getYearEstablished())
                 .companyPhone(entity.getCompanyPhone())
                 .companyFax(entity.getCompanyFax())
                 .build();

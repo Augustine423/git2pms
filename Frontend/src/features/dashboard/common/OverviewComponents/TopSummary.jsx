@@ -1,23 +1,21 @@
+const cardStyle = "bg-[#1f3c88] text-white p-2 rounded-xl shadow-md items-center";
 const TopSummary = () => {
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-    <div className="bg-slate-800 text-white p-6 rounded-xl border-l-4 shadow-md">
-          <div className="text-sm text-gray-300 mb-2">TODAY</div>
-          <div className="text-2xl font-bold">23 JUNE 2015</div>
-        </div>
-        <div className="bg-slate-800 text-white p-6 rounded-xl shadow-md">
-          <div className="text-sm text-gray-300 mb-2">
-            TOTAL SHIPS ASSIGNED TODAY
+    <>
+    <div className="grid grid-cols-1 lg:grid-cols-4 gap-2 mb-4">
+        {[
+          "Crew Status",
+          "Assign Jobs",
+          "Total Crew",
+          "Days",
+        ].map((label, index) => (
+          <div key={index} className={cardStyle}>
+            <p className="text-lg font-semibold">{label}</p>
+            <p className="text-sm items-center font-bold">00 / 365 <span className="text-xs">person</span></p>
           </div>
-          <div className="text-2xl font-bold">24/35</div>
-        </div>
-        <div className="bg-slate-800 text-white p-6 rounded-xl shadow-md">
-          <div className="text-sm text-gray-300 mb-2">
-            TOTAL SEAMEN ON DUTY TODAY
-          </div>
-          <div className="text-2xl font-bold">150/257</div>
-        </div>
-  </div>
+        ))}
+      </div>
+    </>
   );
 };
 

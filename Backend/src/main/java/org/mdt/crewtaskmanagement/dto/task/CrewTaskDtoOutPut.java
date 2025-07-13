@@ -1,21 +1,30 @@
 package org.mdt.crewtaskmanagement.dto.task;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-@Builder
+import lombok.NoArgsConstructor;
+import org.mdt.crewtaskmanagement.model.Task;
+import org.mdt.crewtaskmanagement.model.TaskAssignment;
+
+import java.time.LocalDate;
+
 @Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class CrewTaskDtoOutPut {
-    private int id;
+
+    private long assignmentId;
     private long crewId;
-    private String crewFirstName;
-    private String crewLastName;
     private String shipName;
     private long taskId;
     private String taskTitle;
     private String taskDescription;
-    private String category;
-    private String assignedDate;
-    private String deadlineDate;
-    private boolean completed;
-
+    private int intervalValue;
+    private Task.IntervalUnit intervalUnit;
+    private LocalDate assignedDate;
+    private LocalDate deadlineDate;
+    private TaskAssignment.AssignmentStatus status;
+    private String managerName;
 }

@@ -1,10 +1,8 @@
 package org.mdt.crewtaskmanagement.controller;
 
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.mdt.crewtaskmanagement.dto.company.CompanyDto;
-import org.mdt.crewtaskmanagement.dto.ship.ShipDto;
-import org.mdt.crewtaskmanagement.service.CompanyService;
+import org.mdt.crewtaskmanagement.output.PageResult;
 import org.mdt.crewtaskmanagement.service.impl.CompanyServiceImpl;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
@@ -31,9 +29,10 @@ public class CompanyController {
     public ResponseEntity<CompanyDto> getCompanyById(@PathVariable("id") long id) {
         return ResponseEntity.ok(companyService.getCompanyById(id));
     }
-    @GetMapping("/")
-    public ResponseEntity<List<CompanyDto>> getAllCompanies() {
-        return ResponseEntity.ok(companyService.getAllCompanies());
+    @GetMapping("/all")
+    public PageResult<CompanyDto> getAllCompanies(@RequestParam(defaultValue = "0",required = false) int page,
+                                                  @RequestParam(defaultValue = "10",required = false) int size) {
+        return companyService.getAllCompanies(page, size);
     }
     @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteCompanyById(@PathVariable("id") long id) {

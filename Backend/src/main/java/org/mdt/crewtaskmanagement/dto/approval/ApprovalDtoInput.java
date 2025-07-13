@@ -9,9 +9,4 @@ public class ApprovalDtoInput {
     private String approvedDate;
     private long reportRequestId;
 
-    public ApprovalDtoInput(long id, long crewId, long reportRequestId) {
-        this.id = id;
-        this.crewId = crewId;
-        this.reportRequestId = reportRequestId;
-    }
 }

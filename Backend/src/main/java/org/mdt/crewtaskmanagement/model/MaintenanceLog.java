@@ -22,22 +22,38 @@ public class MaintenanceLog {
     @JoinColumn(name = "crew_id", nullable = false)
     private Crew duty;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "verified_by_id")
+    private Crew verifiedBy;
 
     private LocalDate nextDue;
 
     @Column(nullable = false)
-    private String remark;
+    private String remarks;
 
-    @NotNull
-    private LocalDate lastWork;
+    @Column(name = "logged_at", nullable = false)
+    private LocalDate loggedAt;
 
     @Enumerated(EnumType.STRING)
     private MaintenanceStatus status;
 
-//not sure may be, will be added later...
-    public enum MaintenanceStatus {
-        COMPLETED, PENDING, FAILED
+    @NotNull
+    private LocalDate lastWork;
+
+    @Column(length = 1000)
+    private String mediaUrls;
+
+    @PrePersist
+    public void prePersist() {
+        this.loggedAt = LocalDate.now();
     }
+
+
+
+//not sure may be, will be added later...
+public enum MaintenanceStatus {
+    COMPLETED, PENDING, FAILED, OVERDUE
+}
 
 
 }

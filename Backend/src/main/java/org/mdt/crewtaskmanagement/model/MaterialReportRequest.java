@@ -13,9 +13,11 @@ public class MaterialReportRequest {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
+
     @ManyToOne
     @JoinColumn(name = "material_id")
     private Material material;
+
     @ManyToOne
     @JoinColumn(name = "report_request_id")
     private ReportRequest reportRequest;

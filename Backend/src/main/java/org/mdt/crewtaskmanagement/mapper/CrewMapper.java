@@ -1,20 +1,14 @@
 package org.mdt.crewtaskmanagement.mapper;
 
-import lombok.RequiredArgsConstructor;
 import org.mdt.crewtaskmanagement.dto.crew.CrewDto;
 import org.mdt.crewtaskmanagement.model.Crew;
 import org.mdt.crewtaskmanagement.model.type.CrewRank;
 import org.mdt.crewtaskmanagement.model.type.Gender;
 import org.mdt.crewtaskmanagement.model.type.Section;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.time.LocalDate;
-import java.time.format.DateTimeParseException;
-@RequiredArgsConstructor
+
 public class CrewMapper {
-
-
 
     public static CrewDto toDto(Crew crew) {
         return CrewDto.builder()
@@ -22,13 +16,12 @@ public class CrewMapper {
                 .firstName(crew.getFirstName())
                 .lastName(crew.getLastName())
                 .email(crew.getEmail())
-               // Never expose password in DTO
                 .gender(crew.getGender() != null ? crew.getGender().name() : null)
                 .phone(crew.getPhone())
+                .imgUrl(crew.getImgUrl())
                 .birthDate(crew.getBirthDate() != null ? crew.getBirthDate().toString() : null)
                 .joinedDate(crew.getJoinedDate() != null ? crew.getJoinedDate().toString() : null)
                 .active(crew.isActive())
-                .section(crew.getSection() != null ? crew.getSection().name() : null)
                 .crewRank(crew.getCrewRank() != null ? crew.getCrewRank().name() : null)
                 .nationality(crew.getNationality())
                 .emergencyPhone(crew.getEmergencyPhone())
@@ -37,10 +30,9 @@ public class CrewMapper {
                 .certificates(crew.getCertificates())
                 .certificatesExpiry(crew.getCertificatesExpiry() != null ? crew.getCertificatesExpiry().toString() : null)
                 .licenseNo(crew.getLicenseNo())
-                .licenseExpiry(crew.getLicenseExpiry())
+                .licenseExpiry(crew.getLicenseExpiry() != null ? crew.getLicenseExpiry().toString() : null)
                 .build();
     }
-
 
     public static Crew fromDto(CrewDto dto) {
         Crew crew = new Crew();
@@ -50,19 +42,19 @@ public class CrewMapper {
         crew.setPassword(dto.getPassword());
         crew.setGender(dto.getGender() != null ? Gender.valueOf(dto.getGender()) : null);
         crew.setPhone(dto.getPhone());
-        crew.setBirthDate(LocalDate.parse(dto.getBirthDate()));
-        crew.setJoinedDate(LocalDate.parse(dto.getJoinedDate()));
+        crew.setImgUrl(dto.getImgUrl());
+        crew.setBirthDate(dto.getBirthDate() != null ? LocalDate.parse(dto.getBirthDate()) : null);
+        crew.setJoinedDate(dto.getJoinedDate() != null ? LocalDate.parse(dto.getJoinedDate()) : null);
         crew.setActive(dto.isActive());
-        crew.setSection(dto.getSection() != null ? Section.valueOf(dto.getSection()) : null);
         crew.setCrewRank(dto.getCrewRank() != null ? CrewRank.valueOf(dto.getCrewRank()) : null);
         crew.setNationality(dto.getNationality());
         crew.setEmergencyPhone(dto.getEmergencyPhone());
         crew.setEmergencyEmail(dto.getEmergencyEmail());
         crew.setPhotoUrl(dto.getPhotoUrl());
         crew.setCertificates(dto.getCertificates());
-        crew.setCertificatesExpiry(LocalDate.parse(dto.getCertificatesExpiry()));
+        crew.setCertificatesExpiry(dto.getCertificatesExpiry() != null ? LocalDate.parse(dto.getCertificatesExpiry()) : null);
         crew.setLicenseNo(dto.getLicenseNo());
-        crew.setLicenseExpiry(dto.getLicenseExpiry());
+        crew.setLicenseExpiry(dto.getLicenseExpiry() != null ? LocalDate.parse(dto.getLicenseExpiry()) : null);
         return crew;
     }
 }
