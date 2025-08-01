@@ -15,4 +15,4 @@ const CrewTasksData = () => {
   return{fetchTasks,isLoading,error,contents}
 }
 
-export default CrewTasksData
+export default CrewTasksData;

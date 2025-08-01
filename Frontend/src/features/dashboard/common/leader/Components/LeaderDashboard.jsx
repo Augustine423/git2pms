@@ -5,7 +5,7 @@ import { Outlet } from "react-router-dom";
 const LeaderDashboard = () => {
   return (
     <div className="flex">
-      <SidebarDashboard role="captain" />
+      <SidebarDashboard  />
       <div className="flex-1 p-4">
         <Outlet />
       </div>

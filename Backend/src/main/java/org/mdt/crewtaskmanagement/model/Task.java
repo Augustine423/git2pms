@@ -39,11 +39,8 @@ public class Task {
     @Enumerated(EnumType.STRING)
     private TaskKind kind;
 
-    @OneToMany(mappedBy = "task",cascade = CascadeType.ALL,orphanRemoval = true)
-    private List<MaintenanceLog> maintenanceLogs = new ArrayList<>();
-
     @OneToMany(mappedBy = "task")
-    private List<TaskAssignment> taskSchedules = new ArrayList<>();
+    private List<TaskAssignment> taskAssignments = new ArrayList<>();
 
     public enum TaskKind {
         PMS,SMS,CMS

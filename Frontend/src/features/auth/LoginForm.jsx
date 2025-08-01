@@ -3,31 +3,14 @@ import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { IoMdEye, IoMdEyeOff } from "react-icons/io";
 import footer from "../../assets/common/footer.png"; // Update if needed
-
+import { useAppStore } from "../../stores/store";
+import useLogin from "./authHooks/useLogin";
 const LoginForm = () => {
-
- const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm();
-  const [showPassword, setShowPassword] = useState(false);
-  const navigate = useNavigate();
-
-  const onSubmit = (data) => {
-     sessionStorage.setItem("role",data.role)
-    if (data.role === "captain") {
-       
-    navigate("/dashboard/leader-task");
-  } else {
-    navigate("/dashboard/crew-task");
-  }
-};
-
+const{handleLogin,register,handleSubmit,errors,showPassword,setShowPassword}=useLogin();
   return (
     <div className="w-screen h-screen flex justify-center items-center bg-gradient-to-r from-slate-300 to-blue-800 font-sans">
       <form
-        onSubmit={handleSubmit(onSubmit)}
+        onSubmit={handleSubmit(handleLogin)}
         className="w-full max-w-md p-10 rounded-xl bg-white bg-opacity-10 backdrop-blur-md text-white shadow-xl"
       >
         <div className="text-center mb-10">
@@ -40,22 +23,22 @@ const LoginForm = () => {
           <p className="text-sm mt-2">Log In To Your Account</p>
         </div>
 
-        {/* Email */}
-        {/* <div className="mb-6">
+       {/* {} Email */} 
+        <div className="mb-6">
           <label className="block mb-1">Email</label>
           <input
-            type="email"
-            {...register("email", { required: "Email is required" })}
+            type="username"
+            {...register("username", { required: "Email is required" })}
             placeholder="Enter Your Email"
             className="w-full p-3 rounded-md bg-white bg-opacity-20 text-white placeholder-white border border-white"
           />
-          {errors.email && (
-            <p className="text-red-300 text-sm mt-1">{errors.email.message}</p>
+          {errors.username && (
+            <p className="text-red-300 text-sm mt-1">{errors.username.message}</p>
           )}
-        </div> */}
+        </div>
 
         {/* Password */}
-        {/* <div className="mb-6 relative">
+       <div className="mb-6 relative">
           <label className="block mb-1">Password</label>
           <input
             type={showPassword ? "text" : "password"}
@@ -74,10 +57,10 @@ const LoginForm = () => {
               {errors.password.message}
             </p>
           )}
-        </div> */}
+        </div>
 
         {/* Role Dropdown */}
-        <div className="mb-6">
+        {/* <div className="mb-6">
           <label className="block mb-1">Select Role</label>
           <select 
             {...register("role", { required: "Role is required" })}
@@ -97,10 +80,10 @@ const LoginForm = () => {
           {errors.role && (
             <p className="text-red-300 text-sm mt-1">{errors.role.message}</p>
           )}
-        </div>
+        </div> */}
 
         {/* Login Button */}
-        <button
+                <button
           type="submit"
           className="w-full py-3 rounded-md bg-white text-blue-600 font-bold hover:bg-opacity-80 transition"
         >

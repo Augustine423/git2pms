@@ -15,10 +15,14 @@ public class RoleMapper {
 
         return switch (rank) {
             // Officer ranks
-            case MASTER, CHIEF_OFFICER, SECOND_OFFICER, THIRD_OFFICER, DECK_CADET -> Role.UserRole.OFFICER;
+            case CHIEF_OFFICER, SECOND_OFFICER, THIRD_OFFICER, DECK_CADET -> Role.UserRole.LEADER;
+
+            case MASTER -> Role.UserRole.LEADER;
 
             // Engineer ranks
-            case CHIEF_ENGINEER, SECOND_ENGINEER, THIRD_ENGINEER, FOURTH_ENGINEER, JUNIOR_ENGINEER, TRAINEE_ENGINEER, ETO -> Role.UserRole.ENGINEER;
+            case CHIEF_ENGINEER, SECOND_ENGINEER -> Role.UserRole.LEADER;
+
+            case  THIRD_ENGINEER, FOURTH_ENGINEER, JUNIOR_ENGINEER, TRAINEE_ENGINEER, ETO -> Role.UserRole.CREW;
 
             // Catering/crew roles
             case CHIEF_COOK, SECOND_COOK, MESSMAN, STEWARD, GALLEY_BOY -> Role.UserRole.CREW;
@@ -33,17 +37,7 @@ public class RoleMapper {
             case RADIO_OFFICER -> Role.UserRole.OFFICER;
 
             // Unknown or custom
-            case OTHER -> Role.UserRole.CREW;
-        };
-    }
-
-    public static String mapUserTypeToRoleName(String userType) throws ServiceBaseException {
-        return switch (userType.toLowerCase()) {
-            case "firstleader" -> "FIRST_LEADER";
-            case "secondleader" -> "SECOND_LEADER";
-            case "thirdleader" -> "THIRD_LEADER";
-            case "worker" -> "WORKER";
-            default -> throw new ServiceBaseException(List.of("Unknown user type: " + userType));
+            case OTHER -> throw new RuntimeException();
         };
     }
 }

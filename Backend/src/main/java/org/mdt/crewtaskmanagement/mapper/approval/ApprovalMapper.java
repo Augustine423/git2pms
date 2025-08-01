@@ -28,7 +28,7 @@ public class ApprovalMapper {
 
     public static Approval fromDto(ApprovalDtoInput dto, Crew approver, ReportRequest reportRequest) {
         Approval approval = new Approval();
-        approval.setId(dto.getId());
+
         approval.setApprover(approver);
         approval.setReportRequest(reportRequest);
         approval.setApprovalTimestamp(dto.getApprovedDate() != null

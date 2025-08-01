@@ -2,6 +2,7 @@ package org.mdt.crewtaskmanagement.exception;
 
 import lombok.Getter;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Getter
@@ -14,6 +15,7 @@ public class BaseException extends Exception {
         this.messages = messages;
     }
 
-    public BaseException() {
+    public BaseException(String message) {
+        this.messages = List.of(message);
     }
 }

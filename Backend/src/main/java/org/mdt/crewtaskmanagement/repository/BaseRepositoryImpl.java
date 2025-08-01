@@ -27,6 +27,12 @@ public class BaseRepositoryImpl<T,ID> extends SimpleJpaRepository<T,ID> implemen
         return entityManager.createQuery(cq).getResultList();
     }
 
+    public <R> List<R> getTasksAssignedByStatus(Function<CriteriaBuilder, CriteriaQuery<R>> queryFunc) {
+        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+        CriteriaQuery<R> cq = queryFunc.apply(cb);
+        return entityManager.createQuery(cq).getResultList();
+    }
+
 
 
 

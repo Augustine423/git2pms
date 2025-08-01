@@ -1,13 +1,23 @@
 import React, { useEffect, useState } from "react";
 import { useAppStore } from "../../../stores/store";
-import { useLocation } from "react-router-dom";
+import { useLocation, Link } from "react-router-dom";
 import { useTranslation } from "../../../common/Language";
 import { BellDot, UserRoundPenIcon } from "lucide-react";
-
+import {jwtDecode} from "jwt-decode";
+import { useNavigate } from "react-router-dom";
 const TopBar = () => {
   const { t } = useTranslation();
   const location = useLocation();
-  const setSelectedItem = useAppStore((state) => state.setSelectedItem);
+  const navigate = useNavigate();
+const logout = useAppStore((state) => state.logout);
+  const handleLogout = () => {
+    logout();              // Clear token/account
+    navigate('/login');    // Redirect to login
+  };
+  const token =JSON.stringify(useAppStore.getState().token);
+ const decoded = jwtDecode(token);
+  console.log(decoded);
+  const role = useAppStore.getState().account;
 
   const path = {
     "/dashboard": "dashboardOverview",
@@ -23,19 +33,34 @@ const TopBar = () => {
     "/dashboard/approved-form": "approvedForm",
     "/dashboard/leader-task": "leaderTask",
     "/dashboard/approval-list": "approvalList",
+    "/dashboard/assign-task":"assignTask",
   };
-
-useEffect(() => {
-  const itemKey = path[location.pathname];
-  console.log("item key", itemKey);
-  if (itemKey) {
-    setSelectedItem(itemKey);
-  }
-// eslint-disable-next-line react-hooks/exhaustive-deps
-}, [location.pathname, setSelectedItem]);
-
+    const headerBg =
+    role === "ROLE_LEADER"
+      ? "bg-blue-600"
+      : role === "ROLE_CREW"
+      ? "bg-green-600"
+      : "bg-gray-600";
+console.log("location",location.pathname)
+const setSelectedItem = useAppStore((state) => state.setSelectedItem);
   const selectedItem = useAppStore((state) => state.selectedItem);
+  useEffect(() => {
+    const itemKey = path[location.pathname];
+    console.log("item key", itemKey);
+    if (itemKey) {
+      setSelectedItem(itemKey);
+    }
+    
+  }, [location.pathname,path,setSelectedItem]);
+
+ 
+  console.log("selected item",selectedItem)
+  
   const [showNotifications, setShowNotifications] = useState(false);
+  const [showLogout,setShowLogout]=useState(false);
+  const toggleLogout=()=>{
+    setShowLogout(!showLogout);
+  }
 
   const toggleNotifications = () => {
     setShowNotifications(!showNotifications);
@@ -44,27 +69,27 @@ useEffect(() => {
   return (
     <>
       <div className=" flex-1 flex flex-col w-full pl-4">
-        <header className=" relative bg-crew-theme py-2 flex items-center justify-between rounded-md px-4 w-full">
+        <header className="relative  bg-crew-theme py-2 flex items-center justify-between rounded-md px-4 w-full">
           {/* Left Side: Dashboard Text */}
           <ul className="list-disc list-inside text-white">
             <li className="text-white text-lg font-semibold">
-              {t[selectedItem] || "_"}
+              {t[selectedItem]}
             </li>
           </ul>
 
           {/* Right Side: Bell and Profile */}
           <div className="flex items-center space-x-4 relative">
             <button
-              className="bg-crew-theme p-2 rounded-md hover:bg-[#12293D] text-white"
+              className="p-2 rounded-md hover:bg-[#12293D] text-white"
               onClick={toggleNotifications}
             >
               <BellDot className="h-5 w-5" />
             </button>
 
             <div className="relative group">
-              <button className="flex items-center space-x-2 bg-crew-theme p-2 rounded-md hover:bg-[#12293D] text-white">
+              <button onClick={toggleLogout} className="flex items-center space-x-2 ${headerBg} p-2 rounded-md hover:bg-[#12293D] text-white">
                 <UserRoundPenIcon className="h-4 w-4" />
-                <span>Kim</span>
+                <span>{decoded.sub}</span>
                 <svg
                   className="h-4 w-4"
                   fill="none"
@@ -80,14 +105,16 @@ useEffect(() => {
                 </svg>
               </button>
               {/* Dropdown Menu */}
-              <div className="absolute right-0 mt-4 w-full bg-crew-theme rounded-md shadow-lg hidden group-hover:block z-50">
-                <a
-                  href="/logout"
-                  className="block text-white px-2 py-2 text-sm hover:bg-[#0d1f2e]" // Optional hover color
+              {showLogout && (
+              <div className="absolute right-0 mt-4 w-full bg-[#0d1f2e] rounded-md shadow-lg  z-100">
+                <button
+                  onClick={handleLogout}
+                  className="inline-block w-full text-start  text-white px-2 py-2 rounded-md text-sm hover:bg-[#31414e] "
                 >
                   Logout
-                </a>
+                </button>
               </div>
+              )}
             </div>
           </div>
         </header>

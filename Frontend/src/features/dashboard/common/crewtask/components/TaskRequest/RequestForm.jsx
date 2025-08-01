@@ -1,128 +1,188 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { AiFillPlusSquare } from "react-icons/ai";
+import { PiMinusSquareLight } from "react-icons/pi";
+import { useForm } from "react-hook-form";
+import useRequestData from "../../crewHooks/useRequestData";
+import { CgSpinner } from "react-icons/cg";
 
 const ReportRequestForm = () => {
-  const navigate = useNavigate();
-  const [formData, setFormData] = useState({
-    title: "",
-    crewId: "",
-    description: "",
-    category: "",
-    reportType: "",
-    content: "",
-    requestDate: "",
-    materialList: "",
-  });
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-  };
-
-  const handleCancel = () => {
-    navigate("/dashboard/report");
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    try {
-      const response = await fetch(
-        "http://3.34.130.139:8080/mdt/report/register",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(formData),
-        }
-      );
-
-      if (response.ok) {
-        const result = await response.json();
-        console.log("Success:", result);
-        navigate("/dashboard/report"); // Redirect after successful save
-      } else {
-        console.error("Failed to save report");
-      }
-    } catch (error) {
-      console.error("Error submitting report:", error);
-    }
-  };
-
+  const {
+    data,
+    isLoading,
+    errors,
+    register,
+    handleAddItem,
+    handleMinus,
+    handlePlus,
+    handleSubmit,
+    handleViewMaterial,
+    onSubmit,
+    materialList,
+    activeRows,
+    count,
+  } = useRequestData();
+  console.log("materials", data);
   return (
-    <div className="min-h-screen w-full mt-4 shadow-2xl overflow-hidden">
-      <div className="bg-white mx-4 rounded-[30px] p-6">
-        <form onSubmit={handleSubmit} className="space-y-9 p-6">
+    <div className="min-w-full  p-6">
+      <div className="bg-white min-h-screen rounded-[20px] px-5 pt-5 shadow-2xl">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-9 ">
           <FormGroup
             label="Title"
             name="title"
-            value={formData.title}
-            onChange={handleChange}
+            register={register}
             placeholder="Enter name"
           />
           <FormGroup
             label="Crew-ID"
             name="crewId"
-            value={formData.crewId}
-            onChange={handleChange}
+            register={register}
             placeholder="Enter ID"
           />
           <FormGroup
             label="Description"
             name="description"
-            value={formData.description}
-            onChange={handleChange}
+            register={register}
             placeholder="Enter description"
             isTextArea
           />
           <FormGroup
             label="Category"
             name="category"
-            value={formData.category}
-            onChange={handleChange}
+            register={register}
             placeholder="Enter category"
           />
-          <FormGroup
-            label="Report Type"
-            name="reportType"
-            value={formData.reportType}
-            onChange={handleChange}
-            placeholder="Enter report type"
-          />
+
           <FormGroup
             label="Content"
             name="content"
-            value={formData.content}
-            onChange={handleChange}
+            register={register}
             placeholder="Enter content"
           />
           <FormGroup
             label="Request Date"
             name="requestDate"
-            value={formData.requestDate}
-            onChange={handleChange}
+            register={register}
             type="date"
           />
-          <FormGroup
-            label="Material List"
-            name="materialList"
-            value={formData.materialList}
-            onChange={handleChange}
-            placeholder="Enter content"
-          />
+          <div className="space-y-4">
+            {/* Always visible label and button */}
+            <div className="flex items-start gap-4">
+              <label htmlFor="materialList" className="w-32 pt-2 font-semibold">
+                Material List:
+              </label>
+              {!materialList && (
+                <button
+                  type="button"
+                  onClick={handleViewMaterial}
+                  className="bg-[#587C64] text-white px-4 py-2 rounded-lg"
+                >
+                  Add Material
+                </button>
+              )}
+              {materialList && (
+                <div className="shadow-lg bg-gray-50 w-1/2 p-2  ">
+                  <table className=" px-4 overflow-hidden w-full">
+                    <thead>
+                      <tr className="">
+                        <th className="font-semibold px-2 py-2 text-center border-r-2 border-r-gray-200 ">
+                          Materials
+                        </th>
+                        <th className="font-semibold px-2 py-2 text-center border-r-2 border-r-gray-200 ">
+                          Type
+                        </th>
+                        <th className="font-semibold px-2 py-2 text-center border-r-2 border-r-gray-200 ">
+                          Available
+                        </th>
+                        <th className="font-semibold px-2 py-2 text-center ">
+                          Quantity
+                        </th>
+                      </tr>
+                    </thead>
 
-          <div className="flex justify-end space-x-4 pt-4">
+                    <tbody>
+                      {isLoading ? (
+                        <tr>
+                          <td
+                            colSpan="6"
+                            className="text-center py-4 text-gray-500 text-2xl"
+                          >
+                            <CgSpinner />
+                          </td>
+                        </tr>
+                      ) : data?.contents?.length === 0 ? (
+                        <tr>
+                          <td
+                            colSpan="6"
+                            className="text-center py-4 text-gray-500 text-2xl"
+                          >
+                            <p>No Materials data.</p>
+                          </td>
+                        </tr>
+                      ) : (
+                        <>
+                          {data?.contents?.map((item, i) => (
+                            <tr key={i}>
+                              <td className="font-semibold px-2 text-center py-2 border-r-2 border-r-gray-200">
+                                {item.name}
+                              </td>
+                              <td className="font-semibold px-2 text-center py-2 border-r-2 border-r-gray-200">
+                                {item.type}
+                              </td>
+                              <td className="font-semibold px-2 text-center py-2 border-r-2 border-r-gray-200">
+                                {item.quantity}
+                              </td>
+                              <td className="font-semibold px-2 text-center py-2  ">
+                                <button
+                                  type="button"
+                                  onClick={() => handleAddItem(i)}
+                                  className="bg-[#587C64] text-white px-4 py-1 rounded-lg"
+                                >
+                                  {activeRows[i] ? (
+                                    <div className="flex items-center gap-2">
+                                      <button
+                                        type="button"
+                                        onClick={() => {
+                                          handleMinus(i);
+                                        }}
+                                      >
+                                        <PiMinusSquareLight size={24} />
+                                      </button>
+                                      <span>{count[i]}</span>
+                                      <button
+                                        type="button"
+                                        onClick={() => {
+                                          handlePlus(i);
+                                        }}
+                                      >
+                                        <AiFillPlusSquare size={24} />
+                                      </button>
+                                    </div>
+                                  ) : (
+                                    "Add Item"
+                                  )}
+                                </button>
+                              </td>
+                            </tr>
+                          ))}
+                        </>
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
+          </div>
+          <div className="flex justify-end space-x-4 ">
             <button
               type="submit"
-              className="bg-[#1f3c88] text-white font-semibold px-6 py-2 rounded-md shadow-md hover:bg-blue-800 transition"
+              className="bg-[#587C64] shadow-lg text-white font-semibold px-6 py-2 rounded-md  hover:bg-blue-800 transition"
             >
               Request
             </button>
             <button
               type="button"
-              onClick={handleCancel}
-              className="border border-[#1f3c88] text-[#1f3c88] font-semibold px-6 py-2 rounded-md shadow-md hover:bg-blue-50 transition"
+              className="border border-[#587C64] text-[#587C64] font-semibold px-6 py-2 rounded-md shadow-md hover:bg-blue-50 transition"
             >
               Cancel
             </button>
@@ -136,10 +196,13 @@ const ReportRequestForm = () => {
 const FormGroup = ({
   label,
   name,
+  register,
   value,
   onChange,
+  onClick,
   placeholder,
   isTextArea,
+  isButton,
   type = "text",
 }) => (
   <div className="flex items-start gap-4">
@@ -154,16 +217,26 @@ const FormGroup = ({
         placeholder={placeholder}
         value={value}
         onChange={onChange}
+        {...register(name)}
         className="flex-1 border rounded-md px-4 py-2 outline-none focus:ring focus:ring-blue-200 resize-none"
       />
+    ) : isButton ? (
+      <button
+        id={name}
+        name={name}
+        onClick={onClick}
+        type="button"
+        className="bg-[#587C64] text-white px-4 py-2 rounded-lg"
+      >
+        Add Material
+      </button>
     ) : (
       <input
         id={name}
         name={name}
         type={type}
         placeholder={placeholder}
-        value={value}
-        onChange={onChange}
+        {...register(name)}
         className="flex-1 border rounded-md px-4 py-2 outline-none focus:ring focus:ring-blue-200"
       />
     )}

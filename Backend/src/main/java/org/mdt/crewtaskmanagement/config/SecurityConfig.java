@@ -39,7 +39,7 @@ public class SecurityConfig {
         http.csrf(csrf -> csrf.disable());
         http.authorizeHttpRequests(r ->{
             r.requestMatchers("/api/auth/**").permitAll();
-            r.anyRequest().permitAll();
+            r.anyRequest().authenticated();
         });
         http.cors(c -> {
             CorsConfigurationSource corsConfigurationSource = new CorsConfigurationSource() {

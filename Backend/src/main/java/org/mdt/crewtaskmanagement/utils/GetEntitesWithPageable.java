@@ -9,26 +9,21 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class GetEntitesWithPageable {
-    public static <T,D> PageResult<D> getAllWithPageable(Pageable pageable, Page<T> page, Function<T, D> mapper) {
-        List<D> dtoEntites ;
-        if(page == null) {
+    public static <T, D> PageResult<D> getAllWithPageable(Pageable pageable, Page<T> page, Function<T, D> mapper) {
+        if (page == null) {
             return null;
         }
-        if (mapper != null && page != null) {
-            dtoEntites = page.getContent().stream()
-                    .map(mapper)
-                    .collect(Collectors.toList());
-        } else {
-            dtoEntites = (List<D>) page.getContent();
-        }
 
-        return new PageResult<D>(
-                dtoEntites,
+        List<D> dtoEntities = (mapper != null)
+                ? page.getContent().stream().map(mapper).collect(Collectors.toList())
+                : (List<D>) page.getContent();
+
+        return new PageResult<>(
+                dtoEntities,
                 page.getTotalElements(),
                 page.getTotalPages(),
                 pageable.getPageNumber()
         );
-
     }
 
 }

@@ -5,28 +5,55 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 
-public interface ReportRequestRepository extends JpaRepository<ReportRequest, Long> {
-//    @Query("select  rr FROM ReportRequest rr WHERE EXISTS (SELECT 1 FROM Approval a WHERE a.reportRequest.id = rr.id AND a.position = 'third') AND EXISTS (SELECT 1 FROM Approval a WHERE a.reportRequest.id = rr.id AND a.position = 'second') AND NOT EXISTS (SELECT 1 FROM Approval a WHERE a.reportRequest.id = rr.id AND a.position = 'first')")
-//    Page<ReportRequest> getReportRequestsForFirstLeader(Pageable pageable);
-//    @Query("SELECT rr FROM ReportRequest rr WHERE EXISTS (SELECT 1 FROM Approval a WHERE a.reportRequest.id = rr.id AND a.position = 'third') AND NOT EXISTS (SELECT 1 FROM Approval a WHERE a.reportRequest.id = rr.id AND a.position = 'second')")
-//    Page<ReportRequest> getReportRequestsForSecondLeader(Pageable pageable);
-//    @Query("SELECT rr FROM ReportRequest rr WHERE NOT EXISTS (SELECT 1 FROM Approval a WHERE a.reportRequest.id = rr.id AND a.position = 'third')")
-//    Page<ReportRequest> getReportRequestsForThirdLeader(Pageable pageable);
-//    @Query("""
-//    SELECT rr
-//    FROM ReportRequest rr
-//    JOIN Approval a ON a.reportRequest.id = rr.id
-//    WHERE rr.crew.id = ?1
-//      AND a.position IN ('first','second','third')
-//    GROUP BY rr.id
-//    HAVING COUNT(DISTINCT a.position) = 3
-//""")
-//    Page<ReportRequest> getApprovedReportRequests(long crewId, Pageable pageable);
+import static org.mdt.crewtaskmanagement.model.ReportRequest.*;
 
-    ReportRequest findByTaskAssignmentId(long taskAssignmentId);
+public interface ReportRequestRepository extends JpaRepository<ReportRequest, Long> {
+
+
+    //see reports which you(crew) sent for approval (pending)
+    @Query("""
+    select rr
+    from CrewAssignment ca
+    join ReportRequest rr on rr.crew.id = ca.crew.id
+    where rr.crew.id = :crewId
+      and rr.status = 'APPROVED'
+""")
+    Page<ReportRequest> findApprovedReportsByCrew(@Param("crewId") Long crewId, Pageable pageable);
+//see reports which you(crew) sent for approval (pending)
+@Query("""
+    select rr
+    from ReportRequest rr
+    where rr.crew.id = :crewId
+      and rr.status = 'PENDING'
+""")
+    Page<ReportRequest> findPendingReportsByCrew(@Param("crewId") Long crewId, Pageable pageable);
+
+    //see reports which you(leader) have to approve (pending).
+    @Query("""
+    select rr
+    from CrewAssignment ca
+    join ReportRequest rr on rr.crew.id = ca.crew.id
+    where ca.reportTo.id = :leaderId
+      and rr.status = 'PENDING'
+""")
+    Page<ReportRequest> findPendingReportsByLeader(@Param("leaderId") Long leaderId, Pageable pageable);
+//see reports which you(leader) approved.
+    @Query("""
+    select rr
+    from CrewAssignment ca
+    join ReportRequest rr on rr.crew.id = ca.crew.id
+    where ca.reportTo.id = :leaderId
+      and rr.status = 'APPROVED'
+""")
+    Page<ReportRequest> findApprovedReportsByLeader(@Param("leaderId") Long leaderId, Pageable pageable);
+
+
+
+
 
 
 

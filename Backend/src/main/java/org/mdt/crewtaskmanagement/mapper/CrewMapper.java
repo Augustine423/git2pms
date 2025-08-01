@@ -39,7 +39,9 @@ public class CrewMapper {
         crew.setFirstName(dto.getFirstName());
         crew.setLastName(dto.getLastName());
         crew.setEmail(dto.getEmail());
-        crew.setPassword(dto.getPassword());
+        if(dto.getPassword() != null) {
+            crew.setPassword(dto.getPassword());
+        }
         crew.setGender(dto.getGender() != null ? Gender.valueOf(dto.getGender()) : null);
         crew.setPhone(dto.getPhone());
         crew.setImgUrl(dto.getImgUrl());

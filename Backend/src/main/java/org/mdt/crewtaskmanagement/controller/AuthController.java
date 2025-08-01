@@ -3,6 +3,7 @@ package org.mdt.crewtaskmanagement.controller;
 import lombok.RequiredArgsConstructor;
 import org.mdt.crewtaskmanagement.dto.crew.AdminDto;
 import org.mdt.crewtaskmanagement.dto.crew.CrewDto;
+import org.mdt.crewtaskmanagement.exception.NotImplementedException;
 import org.mdt.crewtaskmanagement.service.impl.AuthService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -15,7 +16,7 @@ public class AuthController {
     record LoginUserDto(String username,String password){}
 
     @PostMapping("/login")
-    public ResponseEntity<AuthService.LoginResponse> login(@RequestBody LoginUserDto loginUserDto) {
+    public ResponseEntity<AuthService.LoginResponseWithOneRole> login(@RequestBody LoginUserDto loginUserDto) throws NotImplementedException {
         return ResponseEntity.ok(authService.login(loginUserDto.username,loginUserDto.password));
     }
 

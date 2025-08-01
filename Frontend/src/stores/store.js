@@ -1,21 +1,28 @@
 
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import { createSelectedItemSlice } from "./selectedItemSlice";
+
 import { createSeamanSlice } from "./SeamanSlice";
 import { createLanguageSlice } from "./languageSlice";
-import { createTaskSlice } from "./crewSlice";
+
 
 export const useAppStore = create(
   persist(
     (set) => ({
-     ...createSelectedItemSlice(set),
+      token: null,
+      account: {},
+       selectedItem: "",
+      setAccount: (account) => set({ account }),
+      setToken: (token) => set({ token }),
+      setSelectedItem: (itemKey) => set({ selectedItem: itemKey }),
+      logout: () => set({ account: {}, token: null }),
      ...createSeamanSlice(set),
      ...createLanguageSlice(set),
-     ...createTaskSlice(set),
+    
     }),
     {
-      name: "app-storage", // key for localStorage
+       name: "account-storage",
+      getStorage: () => localStorage,
     }
   )
 );

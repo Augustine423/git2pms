@@ -8,6 +8,7 @@ import org.mdt.crewtaskmanagement.repository.entity.*;
 import org.mdt.crewtaskmanagement.service.IMaintenanceLogService;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 
@@ -21,16 +22,9 @@ public class MaintenanceLogServiceImpl implements IMaintenanceLogService {
     private final MaintenanceLogRepository maintenanceLogRepository;
     private final CrewRepository crewRepository;
     private final TaskRepository taskRepository;
-    private final TaskScheduleRepository taskScheduleRepository;
     private final TaskAssignmentRepository taskAssignmentRepository;
     private final ReportRequestRepository reportRequestRepository;
     private final MaintenanceLogMapper maintenanceLogMapper;
-    @Override
-    public void createMaintenanceLog(MaintenanceLogDto dto) {
-        MaintenanceLog maintenanceLog = maintenanceLogMapper.fromDto(dto);
-        maintenanceLogRepository.save(maintenanceLog);
-    }
-
 
     @Override
     public LocalDateTime calculateNextDate(LocalDateTime from, int interval, Task.IntervalUnit unit) {
@@ -42,53 +36,36 @@ public class MaintenanceLogServiceImpl implements IMaintenanceLogService {
             case HOURS -> from.plusHours(interval);
         };
     }
-
-
-
-
-
-
-    //__________________________________________________________________________________
+    @Transactional
     @Override
-    public String finishTask(Long assignmentId, String remark) {
-        TaskAssignment assignment = taskAssignmentRepository.findById(assignmentId)
+    public String finishTask(MaintenanceLogDto maintenanceLogDto) {
+        System.out.println(maintenanceLogDto.getTaskAssignmentId()+ "tasiassignment id");
+        TaskAssignment assignment = taskAssignmentRepository.findById(maintenanceLogDto.getTaskAssignmentId())
                 .orElseThrow(() -> new RuntimeException("Assignment not found"));
-
-        // Mark assignment as completed
         assignment.setStatus(TaskAssignment.AssignmentStatus.COMPLETED);
-        taskAssignmentRepository.save(assignment);
+        taskAssignmentRepository.saveAndFlush(assignment);
 
-        // Create maintenance log
-        MaintenanceLog log = new MaintenanceLog();
-        log.setTask(assignment.getTask());
-        log.setDuty(assignment.getCrew());
-        log.setLastWork(LocalDate.now());
-        log.setRemarks(remark);
-        log.setStatus(MaintenanceLog.MaintenanceStatus.COMPLETED);
-
-        // Calculate next due date
         LocalDateTime nextDueDate = calculateNextDate(
                 assignment.getDeadlineDate().atStartOfDay(),
                 assignment.getTask().getIntervalValue(),
                 assignment.getTask().getIntervalUnit()
         );
-        log.setNextDue(nextDueDate.toLocalDate());
-        maintenanceLogRepository.save(log);
+        maintenanceLogDto.setNextDue(nextDueDate.toString());
 
+        Crew crew = crewRepository.findByEmail(maintenanceLogDto.getVerifyBy()).orElseThrow(() -> new RuntimeException("Crew not found who verify the report"));
+
+        maintenanceLogRepository.save(maintenanceLogMapper.fromDto(maintenanceLogDto,assignment,crew));
+
+        //log.setLastWork(LocalDate.now());
+        // log.setRemarks(remark);
+        // log.setStatus(MaintenanceLog.MaintenanceStatus.COMPLETED);
+
+        //here can schedule next assignment or better make preSchedule Assignments
         // Schedule next assignment
-        TaskAssignment next = new TaskAssignment();
-        next.setTask(assignment.getTask());
-        next.setCrew(assignment.getCrew());
-        next.setShip(assignment.getShip());
-        next.setAssignedDate(LocalDate.now());
-        next.setDeadlineDate(nextDueDate.toLocalDate());  // safely convert to LocalDate
-        next.setStatus(TaskAssignment.AssignmentStatus.UPCOMING);
-
-
-        taskAssignmentRepository.save(next);
 
         return "Task completed. Next task scheduled for " + nextDueDate.toLocalDate();
     }
+
 
 
 

@@ -41,8 +41,10 @@ public class AuthService {
     private final RoleRepository roleRepository;
 
     public record LoginResponse(String token,long id,List<String> roles){}
+    public record LoginResponseWithOneRole(String token,long id,String role){}
 
-    public LoginResponse login(String username, String password) {
+
+    public LoginResponseWithOneRole login(String username, String password) {
 
         UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(username, password);
         Authentication authentication = authenticationManager.authenticate(token);
@@ -54,7 +56,8 @@ public class AuthService {
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.toList());
 
-        return  new LoginResponse(jwtTokenProvider.generateToken(authentication),userId,roles) ;
+
+        return  new LoginResponseWithOneRole(jwtTokenProvider.generateToken(authentication),userId,roles.getFirst()) ;
     }
     @Transactional
     public String registerAdmin(AdminDto request) {

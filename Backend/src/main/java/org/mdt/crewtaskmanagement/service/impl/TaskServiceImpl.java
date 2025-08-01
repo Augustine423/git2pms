@@ -1,5 +1,7 @@
 package org.mdt.crewtaskmanagement.service.impl;
 
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
 import lombok.RequiredArgsConstructor;
 import org.mdt.crewtaskmanagement.dto.task.CrewTaskDtoOutPut;
 import org.mdt.crewtaskmanagement.dto.task.TaskDto;
@@ -23,6 +25,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.function.Function;
 
 @Service
 @RequiredArgsConstructor
@@ -35,7 +38,6 @@ public class TaskServiceImpl implements ITaskService {
     private final IMaintenanceLogService maintenanceLogService;
     private final TaskAssignmentRepository taskAssignmentRepository;
     private final TaskMapper taskMapper;
-
 
     @Override
     public PageResult<CrewTaskDtoOutPut> getTasksByCrewId(long crewId,int page,int size) {
@@ -92,7 +94,7 @@ public class TaskServiceImpl implements ITaskService {
         ta.setReportTo(crewAssignmentRepository.findCrewReportTo(crewId).orElseThrow());
         ta.setStatus(TaskAssignment.AssignmentStatus.UPCOMING);
         ta.setAssignedDate(LocalDate.now());
-        ta.setDeadlineDate(!task.getMaintenanceLogs().isEmpty() ? task.getMaintenanceLogs().getLast().getNextDue() : nextDueDate.toLocalDate());
+        ta.setDeadlineDate(nextDueDate.toLocalDate());
         tsrepo.save(ta);
         return   "Assigned task with id " + taskId + " to " + crewId;
     }
@@ -128,5 +130,17 @@ public class TaskServiceImpl implements ITaskService {
         var pageable = PageRequest.of(page, size);
         Page<Task> tasks = taskRepository.findAll(pageable);
         return GetEntitesWithPageable.getAllWithPageable(pageable,tasks, TaskMapper::toTaskDto);
+    }
+//need to finish
+    public List<TaskDto> getAssignedTasksToCrewByStatus(String crewRank){
+        Function<CriteriaBuilder, CriteriaQuery<Task>> query = cb -> {
+            var cq = cb.createQuery(Task.class);
+            var root = cq.from(Task.class);
+            cq.select(root);
+           // cq.where(crewRank.where(cb,root));
+
+            return null;
+        };
+        return null;
     }
 }

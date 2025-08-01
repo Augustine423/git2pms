@@ -1,9 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { FaRegStar, FaTrashAlt, FaCheckCircle, FaClock } from "react-icons/fa";
 import ApprovedRequestListHeader from "./ApprovedRequestListHeader";
+import useApprovedRequests from "../reportHooks/useApprovedRequests";
 
 const ApprovedRequestList = () => {
-  const [searchTerm, setSearchTerm] = useState("");
+  const {data, isLoading,error} = useApprovedRequests();
+  console.log("approved request",data)
+    const [searchTerm, setSearchTerm] = useState("");
   const [requests, setRequests] = useState([
     {
       title: "Approved by Kim For New Assign",
@@ -55,13 +58,7 @@ const ApprovedRequestList = () => {
     <div className="min-w-full  p-6">
       <div className="bg-white min-h-screen rounded-[20px] shadow-2xl">
         <ApprovedRequestListHeader />
-        {requests
-          .filter(
-            (item) =>
-              item.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-              item.description.toLowerCase().includes(searchTerm.toLowerCase())
-          )
-          .map((item, idx) => (
+        {data?.contents?.map((item, idx) => (
             <div
               key={idx}
               className="flex items-center justify-between border-b px-4 py-4 hover:bg-gray-50 transition"
@@ -70,18 +67,19 @@ const ApprovedRequestList = () => {
                 <FaRegStar className="text-gray-500 hover:text-yellow-400 cursor-pointer" />
                 <FaTrashAlt className="text-gray-500 hover:text-red-500 cursor-pointer" />
                 <span className="font-bold">
-                  {item.approved ? "Approved" : "Request"}
+                  {item.status}
                 </span>
               </div>
               <div className="flex-1 text-sm px-2">
+                 <span className="font-semibold">Approved by {item?.approvals?.[0]?.approver} </span>
                 <span className="font-semibold">{item.title}</span>
-                <span className="text-gray-500"> - {item.description}</span>
+                <span className="text-gray-500"> - {item.content}</span>
               </div>
               <div className="flex items-center space-x-3 w-28 justify-end">
                 <span className="text-sm font-bold text-nowrap text-gray-700">
-                  {item.date}
+                  {item.requestDate}
                 </span>
-                {item.approved ? (
+                {item.status ? (
                   <FaCheckCircle className="text-green-500 text-lg" />
                 ) : (
                   <FaClock className="text-red-500 text-lg" />

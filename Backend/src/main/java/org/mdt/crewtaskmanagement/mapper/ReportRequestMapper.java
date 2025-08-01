@@ -4,10 +4,10 @@ import lombok.RequiredArgsConstructor;
 import org.mdt.crewtaskmanagement.dto.materialReportRequest.MaterialReportRequestDto;
 import org.mdt.crewtaskmanagement.dto.reportrequest.ReportRequestDto;
 import org.mdt.crewtaskmanagement.dto.reportrequest.MaterialRequestDto;
-import org.mdt.crewtaskmanagement.model.Material;
-import org.mdt.crewtaskmanagement.model.ReportRequest;
+import org.mdt.crewtaskmanagement.exception.ServiceBaseException;
+import org.mdt.crewtaskmanagement.mapper.approval.ApprovalMapper;
+import org.mdt.crewtaskmanagement.model.*;
 import org.mdt.crewtaskmanagement.model.ReportRequest.ReportStatus;
-import org.mdt.crewtaskmanagement.model.MaterialReportRequest;
 import org.mdt.crewtaskmanagement.service.ICrewService;
 
 import org.mdt.crewtaskmanagement.service.ITaskService;
@@ -27,7 +27,8 @@ public class ReportRequestMapper {
     private final ITaskService taskService;
     private final MaterialServiceImpl materialServiceImpl;
 
-    public ReportRequest fromDto(ReportRequestDto dto) {
+
+    public ReportRequest fromDto(ReportRequestDto dto) throws ServiceBaseException {
         if (dto == null) return null;
 
         ReportRequest entity = new ReportRequest();
@@ -35,12 +36,16 @@ public class ReportRequestMapper {
         if (dto.getId() != 0L) {
             entity.setId(dto.getId());
         }
+      //  entity.setReportType(d);
 
         entity.setTitle(dto.getTitle());
-        entity.setCrew(crewService.getById(dto.getCrewId()));
+        entity.setCrew(crewService.getById(crewService.getIdFromContext()));
         entity.setContent(dto.getContent());
-        entity.setTaskAssignment(taskService.getTaskAssignmentById(dto.getTaskAssignmentId()));
-        entity.setReportType(dto.getReportType());
+        if(dto.getTaskAssignmentId() != 0L ){
+            TaskAssignment taskAssignment = taskService.getTaskAssignmentById(dto.getTaskAssignmentId());
+            entity.setTaskAssignment(taskAssignment);
+            entity.setReportType(taskAssignment.getTask().getIntervalUnit().toString());
+        }
         entity.setRequestDate(dto.getRequestDate() != null ? LocalDate.parse(dto.getRequestDate()) : null);
 
         if (dto.getStatus() != null) {
@@ -61,9 +66,7 @@ public class ReportRequestMapper {
         return ReportRequestDto.builder()
                 .id(entity.getId())
                 .title(entity.getTitle())
-                .crewId(entity.getCrew() != null ? entity.getCrew().getId() : 0L)
                 .taskAssignmentId(entity.getTaskAssignment() != null ? entity.getTaskAssignment().getId() : 0L)
-                .reportType(entity.getReportType())
                 .content(entity.getContent())
                 .requestDate(entity.getRequestDate() != null ? entity.getRequestDate().toString() : null)
                 .status(entity.getStatus() != null ? entity.getStatus().name() : null)
@@ -80,11 +83,16 @@ public class ReportRequestMapper {
                                         .build())
                                 .collect(Collectors.toList())
                         : null)
+                .approvals(entity.getApprovals() != null ?
+                        entity.getApprovals().stream()
+                                .map(approval -> ApprovalMapper.toDto(approval))
+                                .collect(Collectors.toList())
+                        :null)
                 .build();
     }
 
 
-    private List<MaterialReportRequest> getMaterialReportRequestFromDto(ReportRequestDto reportRequestDto) {
+    private List<MaterialReportRequest> getMaterialReportRequestFromDto(ReportRequestDto reportRequestDto) throws ServiceBaseException {
         if(!reportRequestDto.getRequestedMaterials().isEmpty()) {
             List<MaterialReportRequest> materialReportRequests = new ArrayList<>();
 

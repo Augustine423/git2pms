@@ -1,7 +1,7 @@
 package org.mdt.crewtaskmanagement.mapper.task;
 
 import lombok.RequiredArgsConstructor;
-import org.mdt.crewtaskmanagement.dto.taskschedule.TaskAssignmentDto;
+import org.mdt.crewtaskmanagement.dto.tasksAssignment.TaskAssignmentDto;
 import org.mdt.crewtaskmanagement.model.Crew;
 import org.mdt.crewtaskmanagement.model.Ship;
 import org.mdt.crewtaskmanagement.model.Task;

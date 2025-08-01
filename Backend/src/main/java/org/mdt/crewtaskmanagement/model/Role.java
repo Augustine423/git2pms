@@ -18,6 +18,7 @@ public class Role {
     private UserRole roleName;
 
     public enum UserRole {
+        LEADER,
         ADMIN,              // Full system access
         SUPERINTENDENT,     // Shore-side user with authority over ships
         SHIP_MANAGER,       // Can manage tasks & schedules on the ship

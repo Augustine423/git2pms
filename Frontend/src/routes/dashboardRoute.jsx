@@ -5,6 +5,7 @@ import shipRoute from './shipRoute';
 import seamanRoute from './seamanRoute';
 import crewRoute from './crewRoute';
 import leaderRoute from './leaderRoute';
+import historyRoute from './historyRoute';
 const dashboardRoute = [
   {
     path: "/dashboard",
@@ -18,6 +19,7 @@ const dashboardRoute = [
       ...seamanRoute,
       ...crewRoute,
       ...leaderRoute,
+      ...historyRoute,
     ],
   },
 ];

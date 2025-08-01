@@ -48,12 +48,11 @@ const ApprovalList = () => {
               <FaRegStar className="text-gray-500 hover:text-yellow-400 cursor-pointer" />
               <FaTrashAlt className="text-gray-500 hover:text-red-500 cursor-pointer" />
               <span className="font-bold">{item.type}</span>
-              
             </div>
-{/* Message */}
-              <div className="flex-1 text-sm px-2">
-                <span className="font-semibold">{item.message}</span>
-              </div>
+            {/* Message */}
+            <div className="flex-1 text-sm px-2">
+              <span className="font-semibold">{item.message}</span>
+            </div>
             {/* Right: date + icon + buttons */}
             <div className="flex items-center space-x-3 w-15 justify-end">
               <span className="text-sm font-bold text-gray-700">

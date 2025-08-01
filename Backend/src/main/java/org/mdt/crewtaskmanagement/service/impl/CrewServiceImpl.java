@@ -17,15 +17,19 @@ import org.mdt.crewtaskmanagement.param.CrewParam;
 import org.mdt.crewtaskmanagement.repository.entity.CrewAssignmentRepository;
 import org.mdt.crewtaskmanagement.repository.entity.CrewRepository;
 import org.mdt.crewtaskmanagement.repository.entity.RoleRepository;
+import org.mdt.crewtaskmanagement.repository.entity.UserRepository;
 import org.mdt.crewtaskmanagement.service.ICrewService;
 import org.mdt.crewtaskmanagement.utils.GetEntitesWithPageable;
 import org.mdt.crewtaskmanagement.utils.RoleMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.validation.annotation.Validated;
 
 import java.util.List;
 import java.util.function.Function;
@@ -41,6 +45,7 @@ public class CrewServiceImpl implements ICrewService {
     private final PasswordEncoder passwordEncoder;
     private final RoleRepository roleRepository;
     private final CrewAssignmentMapper crewAssignmentMapper;
+    private final UserRepository userRepository;
 
     @Override
     public CrewDto registerCrew(CrewDto dto) throws ServiceBaseException {
@@ -69,14 +74,30 @@ public class CrewServiceImpl implements ICrewService {
         Crew crew = crewRepository.findById(dto.getId()).orElseThrow();
         Crew c = CrewMapper.fromDto(dto);
         c.setId(crew.getId());
+        c.setPassword(passwordEncoder.encode(dto.getPassword()));
         return CrewMapper.toDto(crewRepository.saveAndFlush(c));
     }
+    @Override
+    public long getIdFromContext() throws ServiceBaseException {
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
+        String email;
+        if (principal instanceof org.springframework.security.core.userdetails.UserDetails userDetails) {
+            email = userDetails.getUsername(); // username is usually email
+        } else if (principal instanceof String str) {
+            email = str; // Sometimes principal is just the username
+        } else {
+            throw new ServiceBaseException("Unable to extract user info from security context");
+        }
+        return userRepository.getIdByEmail(email).orElseThrow();
+
+    }
 
     @Override
     public CrewDto getCrewById(long id) {
         return CrewMapper.toDto(crewRepository.findById(id).orElseThrow());
     }
+
     @Override
     public Crew getById(long id) {
         return crewRepository.findById(id).orElseThrow();
@@ -140,6 +161,8 @@ public class CrewServiceImpl implements ICrewService {
 
         return crewRepository.search(query).stream().map(CrewMapper::toDto).collect(Collectors.toList());
     }
+
+
 
     @Override
     public int getAllCrewsCount() {

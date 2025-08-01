@@ -57,4 +57,5 @@ public class MaterialController {
         materialService.deleteMaterialById(id);
         return ResponseEntity.ok("Deleted material with id " + id);
     }
+
 }

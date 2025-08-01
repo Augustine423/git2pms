@@ -9,8 +9,8 @@ import java.time.LocalDateTime;
 public interface IMaintenanceLogService {
 
 
- void createMaintenanceLog(MaintenanceLogDto dto);
- String finishTask(Long assignmentId,String remark);
+
+ String finishTask(MaintenanceLogDto maintenanceLogDto);
   LocalDateTime calculateNextDate(LocalDateTime from, int interval, Task.IntervalUnit unit);
 
 

@@ -24,4 +24,5 @@ public interface ICrewService {
     int getAllCrewsCount();
     int getAllActiveCrewCount();
     CrewAssignmentDto addCrewAssignment(CrewAssignmentDto crewAssignmentDto);
+    long getIdFromContext() throws ServiceBaseException;
 }

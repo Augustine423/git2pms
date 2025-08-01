@@ -5,11 +5,8 @@ import java.util.List;
 public record PageResult<T>(
         List<T> contents,
         long totalItems,
-        int size,
+        int totalPages,
         int currentPage
 ) {
-
-    public int getTotalPages() {
-        return (int) Math.ceil((double) totalItems / size);
-    }
+    // Optional: remove getTotalPages() because it's already passed as a constructor argument
 }

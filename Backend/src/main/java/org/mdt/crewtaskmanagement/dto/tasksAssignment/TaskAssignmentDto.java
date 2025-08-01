@@ -1,4 +1,4 @@
-package org.mdt.crewtaskmanagement.dto.taskschedule;
+package org.mdt.crewtaskmanagement.dto.tasksAssignment;
 
 import lombok.Builder;
 import lombok.Data;
